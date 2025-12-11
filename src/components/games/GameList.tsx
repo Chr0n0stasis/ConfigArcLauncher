@@ -1,5 +1,6 @@
 import { Game, ConfigProfile } from '../../types/games';
 import GameCard from './GameCard';
+import './games.css';
 
 type Props = {
   games: Game[];
@@ -12,11 +13,11 @@ type Props = {
 
 function GameList({ games, profiles, onEdit, onDelete, onLaunch }: Props) {
   if (!games.length) {
-    return <p>No games added yet.</p>;
+    return <p style={{ color: 'var(--text-muted)', textAlign: 'center', marginTop: 40 }}>No games added yet.</p>;
   }
 
   return (
-    <div style={{ display: 'grid', gap: 12 }}>
+    <div className="game-list">
       {games.map((game) => (
         <GameCard
           key={game.id}

@@ -1,41 +1,90 @@
 .layout-shell {
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 260px 1fr;
   min-height: 100vh;
+  background: var(--bg-primary);
 }
 
 .layout-main {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  background: #111827;
+  background: var(--bg-primary);
+  position: relative;
 }
 
 .layout-content {
-  padding: 16px 20px;
+  padding: var(--spacing-lg);
   overflow-y: auto;
   flex: 1;
 }
 
 .layout-header {
-  padding: 12px 20px;
-  border-bottom: 1px solid #1f2937;
-  background: #0b1220;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .layout-title {
   margin: 0;
-  font-size: 18px;
-  letter-spacing: 0.4px;
+  font-size: 20px;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+  background: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .layout-sidebar {
-  background: #0b1220;
-  padding: 16px;
-  border-right: 1px solid #1f2937;
+  background: var(--bg-secondary);
+  padding: var(--spacing-lg);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
 }
 
 .layout-sidebar-title {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: var(--spacing-md);
+  margin-top: var(--spacing-lg);
 }
+
+.layout-sidebar-title:first-child {
+  margin-top: 0;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  text-decoration: none;
+  margin-bottom: 4px;
+  transition: all 0.2s ease;
+  font-weight: 500;
+}
+
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  transform: translateX(4px);
+}
+
+.sidebar-link.active {
+  background: var(--accent-primary);
+  color: white;
+  box-shadow: var(--shadow-glow);
+}
+
