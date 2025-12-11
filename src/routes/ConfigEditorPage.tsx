@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import SegatoolsEditor from '../components/config/SegatoolsEditor';
 import { useConfigState, useProfilesState } from '../state/configStore';
 import { useGamesState } from '../state/gamesStore';
@@ -9,6 +10,7 @@ import { PromptDialog } from '../components/common/PromptDialog';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
 
 function ConfigEditorPage() {
+  const { t } = useTranslation();
   const { config, setConfig, loading, saving, error, activeGameId, reload, save, resetToDefaults } = useConfigState();
   const { profiles, reload: reloadProfiles, saveProfile, deleteProfile, loadProfile } = useProfilesState();
   const { games } = useGamesState();
@@ -62,7 +64,7 @@ function ConfigEditorPage() {
     };
     await saveProfile(updatedProfile);
     reloadProfiles();
-    showToast('Profile saved successfully!', 'success');
+    showToast(t('config.profileSaved'), 'success');
   };
 
   const handleProfileDelete = () => {
@@ -77,7 +79,7 @@ function ConfigEditorPage() {
     if (activeGameId) localStorage.removeItem(`lastProfile:${activeGameId}`);
     reloadProfiles();
     reload();
-    showToast('Profile deleted', 'info');
+    showToast(t('config.profileDeleted'), 'info');
     setShowDeleteProfileDialog(false);
   };
 
@@ -100,7 +102,7 @@ function ConfigEditorPage() {
     setSelectedProfileId(profile.id);
     if (activeGameId) localStorage.setItem(`lastProfile:${activeGameId}`, profile.id);
     reloadProfiles();
-    showToast('Profile created', 'success');
+    showToast(t('config.profileCreated'), 'success');
     setShowNewProfileDialog(false);
   };
 
@@ -115,34 +117,33 @@ function ConfigEditorPage() {
     }
     if (!id) {
       await reload();
-      showToast('Loaded current file', 'info');
+      showToast(t('config.loadedCurrent'), 'info');
       return;
     }
     const prof = await loadProfile(id);
     setConfig({ ...prof.segatools });
-    showToast(`Loaded profile: ${prof.name}`, 'info');
+    showToast(t('config.loadedProfile', { name: prof.name }), 'info');
   };
 
   if (loading) return (
     <div className="empty-state">
-      <h3>Loading Config...</h3>
+      <h3>{t('config.loading')}</h3>
     </div>
   );
 
   if (!activeGameId) {
     return (
       <div className="empty-state">
-        <h3>No Active Game Selected</h3>
-        <p>Please activate a game in the Game List to edit its configuration.</p>
-        <p style={{ fontSize: '0.9em', opacity: 0.7, marginTop: '8px' }}>请先在游戏列表激活一个游戏后再编辑配置。</p>
+        <h3>{t('config.noActiveGame')}</h3>
+        <p>{t('config.activateFirst')}</p>
       </div>
     );
   }
 
   if (!config) return (
     <div className="empty-state">
-      <h3 style={{ color: 'var(--danger)' }}>Configuration Error</h3>
-      <p className="error-message">{error || "Failed to load configuration."}</p>
+      <h3 style={{ color: 'var(--danger)' }}>{t('common.error')}</h3>
+      <p className="error-message">{error || t('config.loadError')}</p>
     </div>
   );
 
@@ -151,20 +152,20 @@ function ConfigEditorPage() {
       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', marginBottom: 12 }}>
         <div>
           <h2 style={{ margin: '0 0 4px 0' }}>
-            Config Editor {activeGame ? <span style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>— {activeGame.name}</span> : ''}
+            {t('config.title')} {activeGame ? <span style={{ color: 'var(--text-muted)', fontWeight: 'normal' }}>— {activeGame.name}</span> : ''}
           </h2>
-          <small>Edit segatools.ini values and manage profiles.</small>
+          <small>{t('config.subtitle')}</small>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           <select value={selectedProfileId} onChange={(e) => handleProfileLoad(e.target.value)}>
-            <option value="">Current File (segatools.ini)</option>
+            <option value="">{t('games.currentFile')}</option>
             {profileOptions.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
-          <button onClick={handleCreateProfile}>New Profile</button>
-          <button onClick={handleProfileSave}>Save Profile</button>
-          <button onClick={handleProfileDelete} disabled={!selectedProfileId}>Delete Profile</button>
+          <button onClick={handleCreateProfile}>{t('config.newProfile')}</button>
+          <button onClick={handleProfileSave}>{t('config.saveProfile')}</button>
+          <button onClick={handleProfileDelete} disabled={!selectedProfileId}>{t('config.deleteProfile')}</button>
         </div>
       </div>
       {error && <p style={{ color: '#f87171' }}>{error}</p>}
@@ -174,14 +175,14 @@ function ConfigEditorPage() {
         activeGame={activeGame}
       />
       <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-        <button onClick={() => { save(config); showToast('Config saved to disk', 'success'); }} disabled={saving}>Save Config</button>
-        <button onClick={resetToDefaults}>Reset to Defaults</button>
-        <button onClick={() => { reload(); showToast('Reloaded from disk', 'info'); }}>Reload from Disk</button>
+        <button onClick={() => { save(config); showToast(t('config.saved'), 'success'); }} disabled={saving}>{t('config.saveConfig')}</button>
+        <button onClick={resetToDefaults}>{t('config.resetDefaults')}</button>
+        <button onClick={() => { reload(); showToast(t('config.reloaded'), 'info'); }}>{t('config.reloadDisk')}</button>
       </div>
       {showNewProfileDialog && (
         <PromptDialog
-          title="Create New Profile"
-          label="Enter a name for the new profile:"
+          title={t('config.createProfileTitle')}
+          label={t('config.createProfileMessage')}
           defaultValue=""
           onConfirm={onConfirmCreateProfile}
           onCancel={() => setShowNewProfileDialog(false)}
@@ -189,8 +190,8 @@ function ConfigEditorPage() {
       )}
       {showDeleteProfileDialog && (
         <ConfirmDialog
-          title="Delete Profile"
-          message="Are you sure you want to delete this profile? This action cannot be undone."
+          title={t('config.deleteProfileTitle')}
+          message={t('config.deleteProfileMessage')}
           onConfirm={onConfirmDeleteProfile}
           onCancel={() => setShowDeleteProfileDialog(false)}
           isDangerous={true}

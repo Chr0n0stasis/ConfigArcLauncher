@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '../../context/ThemeContext';
 
 function SettingsForm() {
+  const { t } = useTranslation();
   const { theme, setTheme } = useTheme();
 
   return (
@@ -10,13 +12,13 @@ function SettingsForm() {
       borderRadius: 'var(--radius-md)', 
       background: 'var(--bg-secondary)' 
     }}>
-      <h3 style={{ marginBottom: 'var(--spacing-md)' }}>Appearance</h3>
+      <h3 style={{ marginBottom: 'var(--spacing-md)' }}>{t('settings.appearance')}</h3>
       
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 'var(--spacing-md)' }}>
         {[
-          { id: 'system', label: 'System' },
-          { id: 'light', label: 'Light' },
-          { id: 'dark', label: 'Dark' }
+          { id: 'system', label: t('settings.theme.system') },
+          { id: 'light', label: t('settings.theme.light') },
+          { id: 'dark', label: t('settings.theme.dark') }
         ].map((option) => (
           <div
             key={option.id}

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Modal } from './Modal';
 
 type Props = {
@@ -14,12 +15,13 @@ type Props = {
 export function ConfirmDialog({ 
   title, 
   message, 
-  confirmLabel = 'Confirm', 
-  cancelLabel = 'Cancel', 
+  confirmLabel, 
+  cancelLabel, 
   onConfirm, 
   onCancel,
   isDangerous = false
 }: Props) {
+  const { t } = useTranslation();
   return (
     <Modal title={title} onClose={onCancel} width={400}>
       <p style={{ marginTop: 0, marginBottom: 24, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
@@ -31,14 +33,14 @@ export function ConfirmDialog({
           onClick={onCancel}
           style={{ background: 'transparent', border: '1px solid var(--border-color)' }}
         >
-          {cancelLabel}
+          {cancelLabel || t('common.cancel')}
         </button>
         <button 
           type="button" 
           onClick={onConfirm}
           style={isDangerous ? { background: 'var(--danger)', borderColor: 'var(--danger)' } : {}}
         >
-          {confirmLabel}
+          {confirmLabel || t('common.confirm')}
         </button>
       </div>
     </Modal>

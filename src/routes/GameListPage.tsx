@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import GameList from '../components/games/GameList';
 import GameEditorDialog from '../components/games/GameEditorDialog';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
@@ -18,6 +19,7 @@ const emptyGame = (): Game => ({
 });
 
 function GameListPage() {
+  const { t } = useTranslation();
   const { games, loading, error, activeGameId, reload, saveGame, deleteGame, activateGame } = useGamesState();
   const { profiles } = useProfilesState();
   const [editing, setEditing] = useState<Game | null>(null);
@@ -35,7 +37,7 @@ function GameListPage() {
       await launchGame(gameId, profileId);
     } catch (err) {
       console.error(err);
-      alert(`Failed to launch game: ${err}`);
+      alert(t('games.launchFailed', { error: err }));
     }
   };
 
@@ -54,12 +56,12 @@ function GameListPage() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12 }}>
         <div>
-          <h2 style={{ margin: '0 0 4px 0' }}>Games</h2>
-          <small>Manage local executables and launch with selected profile.</small>
+          <h2 style={{ margin: '0 0 4px 0' }}>{t('games.title')}</h2>
+          <small>{t('games.subtitle')}</small>
         </div>
-        <button onClick={() => setEditing(emptyGame())}>Add Game</button>
+        <button onClick={() => setEditing(emptyGame())}>{t('games.add')}</button>
       </div>
-      {loading && <p>Loading games...</p>}
+      {loading && <p>{t('common.loading')}</p>}
       {error && <p style={{ color: '#f87171' }}>{error}</p>}
       <GameList
         games={sortedGames}
@@ -80,8 +82,8 @@ function GameListPage() {
       )}
       {gameToDelete && (
         <ConfirmDialog
-          title="Delete Game"
-          message="Are you sure you want to delete this game? This action cannot be undone."
+          title={t('games.deleteConfirmTitle')}
+          message={t('games.deleteConfirmMessage')}
           onConfirm={handleConfirmDelete}
           onCancel={() => setGameToDelete(null)}
           isDangerous={true}

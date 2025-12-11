@@ -1,0 +1,594 @@
+{
+  "common": {
+    "appName": "ConfigArc Launcher",
+    "confirm": "Confirm",
+    "pressAnyKey": "Press any key...",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "loading": "Loading...",
+    "back": "Back",
+    "edit": "Edit",
+    "active": "Active",
+    "disabled": "Disabled",
+    "activate": "Activate",
+    "launch": "Launch",
+    "enabled": "Enabled",
+    "name": "Name",
+    "error": "Error"
+  },
+  "nav": {
+    "games": "Games",
+    "config": "Config Editor",
+    "settings": "Settings"
+  },
+  "games": {
+    "title": "Games",
+    "subtitle": "Manage local executables and launch with selected profile.",
+    "add": "Add Game",
+    "noGames": "No games added yet.",
+    "exec": "Exec",
+    "workdir": "Workdir",
+    "args": "Args",
+    "currentFile": "Current File (segatools.ini)",
+    "launchFailed": "Failed to launch game: {{error}}",
+    "deleteConfirmTitle": "Delete Game",
+    "deleteConfirmMessage": "Are you sure you want to delete this game? This action cannot be undone.",
+    "editor": {
+      "editTitle": "Edit Game",
+      "addTitle": "Add Game",
+      "autoDetect": "Auto-detect from Folder",
+      "scanning": "Scanning...",
+      "execPath": "Executable Path",
+      "workdirOptional": "Working Directory (optional)",
+      "launchArgs": "Launch Arguments (space separated)",
+      "save": "Save Game"
+    }
+  },
+  "config": {
+    "title": "Config Editor",
+    "subtitle": "Edit segatools.ini values and manage profiles.",
+    "noActiveGame": "No Active Game Selected",
+    "activateFirst": "Please activate a game in the Game List to edit its configuration.",
+    "loadError": "Failed to load configuration.",
+    "loading": "Loading Config...",
+    "newProfile": "New Profile",
+    "saveProfile": "Save Profile",
+    "deleteProfile": "Delete Profile",
+    "saveConfig": "Save Config",
+    "resetDefaults": "Reset to Defaults",
+    "reloadDisk": "Reload from Disk",
+    "saved": "Config saved to disk",
+    "reloaded": "Reloaded from disk",
+    "profileSaved": "Profile saved successfully!",
+    "profileDeleted": "Profile deleted",
+    "profileCreated": "Profile created",
+    "loadedCurrent": "Loaded current file",
+    "loadedProfile": "Loaded profile: {{name}}",
+    "createProfileTitle": "Create New Profile",
+    "createProfileMessage": "Enter a name for the new profile:",
+    "deleteProfileTitle": "Delete Profile",
+    "deleteProfileMessage": "Are you sure you want to delete this profile? This action cannot be undone."
+  },
+  "settings": {
+    "title": "Settings",
+    "appearance": "Appearance",
+    "theme": {
+      "system": "System",
+      "light": "Light",
+      "dark": "Dark"
+    }
+  },
+  "segatools": {
+    "aimeio": {
+      "title": "aimeio",
+      "path": {
+        "label": "Driver path",
+        "desc": "Specify a path for a third-party card reader driver DLL. Default is empty (use built-in emulation based on text files and keyboard input)."
+      }
+    },
+    "mai2io": {
+      "title": "mai2io",
+      "path": {
+        "label": "Driver path",
+        "desc": "Specify a path for a third-party maimai DX IO driver DLL."
+      }
+    },
+    "aime": {
+      "title": "aime",
+      "enable": {
+        "label": "Enable Aime emulation",
+        "desc": "Enable Aime card reader assembly emulation. Disable to use a real SEGA Aime reader."
+      },
+      "portNo": {
+        "label": "COM port",
+        "desc": "Sets the COM port to use for the aime card reader assembly."
+      },
+      "highBaud": {
+        "label": "High baud (115200)",
+        "desc": "Enables the high baudrate of the Aime card reader to be 115200 (instead of 38400). Required for some games (e.g. Chunithm)."
+      },
+      "gen": {
+        "label": "Generation",
+        "desc": "Changes the Aime card reader generation (1, 2, or 3)."
+      },
+      "aimePath": {
+        "label": "Aime card file",
+        "desc": "Path to a text file containing a classic Aime IC card ID."
+      },
+      "aimeGen": {
+        "label": "Generate Aime ID",
+        "desc": "Whether to generate a random AiMe ID if the file at aimePath does not exist."
+      },
+      "felicaPath": {
+        "label": "FeliCa file",
+        "desc": "Path to a text file containing a FeliCa e-cash card IDm serial number."
+      },
+      "felicaGen": {
+        "label": "Generate FeliCa ID",
+        "desc": "Whether to generate a random FeliCa ID if the file at felicaPath does not exist."
+      },
+      "scan": {
+        "label": "Scan key (VK code)",
+        "desc": "Virtual-key code. If this button is held then the emulated IC card reader emulates an IC card in its proximity."
+      },
+      "proxyFlag": {
+        "label": "Proxy flag"
+      },
+      "authdataPath": {
+        "label": "Auth data path"
+      }
+    },
+    "vfd": {
+      "title": "vfd",
+      "enable": {
+        "label": "Enable VFD emulation",
+        "desc": "Enable VFD emulation. Disable to use a real VFD GP1232A02A FUTABA assembly."
+      },
+      "portNo": {
+        "label": "COM port",
+        "desc": "Sets the COM port to use for the VFD."
+      },
+      "utfConversion": {
+        "label": "Convert to UTF",
+        "desc": "Converts the strings from the VFD from their respective encoding to UTF."
+      }
+    },
+    "amvideo": {
+      "title": "amvideo",
+      "enable": {
+        "label": "Enable amvideo stub",
+        "desc": "Enable stub amvideo.dll. Disable to use a real amvideo.dll build."
+      }
+    },
+    "clock": {
+      "title": "clock",
+      "timezone": {
+        "label": "Force JST timezone",
+        "desc": "Make the system time zone appear to be JST. SEGA games malfunction if the system time zone is not JST."
+      },
+      "timewarp": {
+        "label": "Time warp",
+        "desc": "Experimental time-of-day warping hook that skips over the hardcoded server maintenance period."
+      },
+      "writeable": {
+        "label": "Allow clock writes",
+        "desc": "Allow game to adjust system clock and time zone settings."
+      }
+    },
+    "dns": {
+      "title": {
+        "label": "Title server",
+        "desc": "Rewrites the title server hostname for certain games."
+      },
+      "default": {
+        "label": "Default host",
+        "desc": "Controls hostname of all of the common network services servers."
+      },
+      "router": {
+        "label": "Router override",
+        "desc": "Overrides the target of the tenporouter.loc and bbrouter.loc hostname lookups."
+      },
+      "startup": {
+        "label": "Startup host",
+        "desc": "Overrides the target of the naominet.jp host lookup."
+      },
+      "billing": {
+        "label": "Billing host",
+        "desc": "Overrides the target of the ib.naominet.jp host lookup."
+      },
+      "aimedb": {
+        "label": "AimeDB host",
+        "desc": "Overrides the target of the aime.naominet.jp host lookup."
+      },
+      "replaceHost": {
+        "label": "Replace HTTP Host header",
+        "desc": "Replace the HOST field in HTTP request headers with the settings above."
+      },
+      "startupPort": {
+        "label": "Startup port",
+        "desc": "Overrides the port of connections to the startup server."
+      },
+      "billingPort": {
+        "label": "Billing port",
+        "desc": "Overrides the port of connections to the billing server."
+      },
+      "aimedbPort": {
+        "label": "AimeDB port",
+        "desc": "Overrides the port of connections to the aimedb server."
+      }
+    },
+    "ds": {
+      "title": "ds",
+      "enable": {
+        "label": "Enable DS EEPROM",
+        "desc": "Enable DS EEPROM emulation. Disable to use the DS EEPROM chip on a real AMEX."
+      },
+      "region": {
+        "label": "Region mask",
+        "desc": "AMEX Board region code (1: Japan, 4: Export, 8: China)."
+      },
+      "serialNo": {
+        "label": "MAIN ID",
+        "desc": "\"MAIN ID\" serial number."
+      }
+    },
+    "eeprom": {
+      "title": "eeprom",
+      "enable": {
+        "label": "Enable EEPROM",
+        "desc": "Enable bulk EEPROM emulation. Disable to use the bulk EEPROM chip on a real AMEX."
+      },
+      "path": {
+        "label": "EEPROM path",
+        "desc": "Path to the storage file for EEPROM emulation."
+      }
+    },
+    "gpio": {
+      "title": "gpio",
+      "enable": {
+        "label": "Enable GPIO",
+        "desc": "Enable GPIO emulation. Disable to use the GPIO controller on a real AMEX."
+      },
+      "sw1": {
+        "label": "SW1 key",
+        "desc": "Keyboard binding for Nu chassis SW1 button (alternative Test)."
+      },
+      "sw2": {
+        "label": "SW2 key",
+        "desc": "Keyboard binding for Nu chassis SW2 button (alternative Service)."
+      },
+      "dipsw1": {
+        "label": "DIP 1",
+        "desc": "Nu chassis DIP switch 1."
+      },
+      "dipsw2": {
+        "label": "DIP 2",
+        "desc": "Nu chassis DIP switch 2."
+      },
+      "dipsw3": {
+        "label": "DIP 3",
+        "desc": "Nu chassis DIP switch 3."
+      },
+      "dipsw4": {
+        "label": "DIP 4",
+        "desc": "Nu chassis DIP switch 4."
+      },
+      "dipsw5": {
+        "label": "DIP 5",
+        "desc": "Nu chassis DIP switch 5."
+      },
+      "dipsw6": {
+        "label": "DIP 6",
+        "desc": "Nu chassis DIP switch 6."
+      },
+      "dipsw7": {
+        "label": "DIP 7",
+        "desc": "Nu chassis DIP switch 7."
+      },
+      "dipsw8": {
+        "label": "DIP 8",
+        "desc": "Nu chassis DIP switch 8."
+      }
+    },
+    "gfx": {
+      "title": "gfx",
+      "enable": {
+        "label": "Enable graphics hooks",
+        "desc": "Enables graphic hooks."
+      },
+      "windowed": {
+        "label": "Force windowed",
+        "desc": "Force the game to run windowed."
+      },
+      "framed": {
+        "label": "Add frame in windowed",
+        "desc": "Add a frame to the game window if running windowed."
+      },
+      "monitor": {
+        "label": "Monitor index",
+        "desc": "Select the monitor to run the game on. (Fullscreen only, 0 = primary screen)"
+      },
+      "dpiAware": {
+        "label": "DPI aware",
+        "desc": "Sets the game to be DPI-aware. Prevents Windows scaling."
+      }
+    },
+    "hwmon": {
+      "title": "hwmon",
+      "enable": {
+        "label": "Enable hardware monitor",
+        "desc": "Enable hwmon emulation. Disable to use the real hwmon driver."
+      }
+    },
+    "jvs": {
+      "title": "jvs",
+      "enable": {
+        "label": "Enable JVS",
+        "desc": "Enable JVS port emulation. Disable to use the JVS port on a real AMEX."
+      },
+      "foreground": {
+        "label": "Input only when focused",
+        "desc": "Only enables input when the game's main window is focused."
+      }
+    },
+    "io4": {
+      "title": "io4",
+      "enable": {
+        "label": "Enable IO4",
+        "desc": "Enable IO4 port emulation. Disable to use the IO4 port on a real ALLS."
+      },
+      "foreground": {
+        "label": "Input only when focused",
+        "desc": "Only enables input when the game's main window is focused."
+      },
+      "test": {
+        "label": "Test key",
+        "desc": "Test button virtual-key code."
+      },
+      "service": {
+        "label": "Service key",
+        "desc": "Service button virtual-key code."
+      },
+      "coin": {
+        "label": "Coin key",
+        "desc": "Keyboard button to increment coin counter."
+      }
+    },
+    "button": {
+      "title": "button",
+      "enable": {
+        "label": "Enable button emulation"
+      },
+      "p1Btn1": {
+        "label": "P1 Button 1"
+      },
+      "p1Btn2": {
+        "label": "P1 Button 2"
+      },
+      "p1Btn3": {
+        "label": "P1 Button 3"
+      },
+      "p1Btn4": {
+        "label": "P1 Button 4"
+      },
+      "p1Btn5": {
+        "label": "P1 Button 5"
+      },
+      "p1Btn6": {
+        "label": "P1 Button 6"
+      },
+      "p1Btn7": {
+        "label": "P1 Button 7"
+      },
+      "p1Btn8": {
+        "label": "P1 Button 8"
+      },
+      "p1Select": {
+        "label": "P1 Select"
+      },
+      "p2Btn1": {
+        "label": "P2 Button 1"
+      },
+      "p2Btn2": {
+        "label": "P2 Button 2"
+      },
+      "p2Btn3": {
+        "label": "P2 Button 3"
+      },
+      "p2Btn4": {
+        "label": "P2 Button 4"
+      },
+      "p2Btn5": {
+        "label": "P2 Button 5"
+      },
+      "p2Btn6": {
+        "label": "P2 Button 6"
+      },
+      "p2Btn7": {
+        "label": "P2 Button 7"
+      },
+      "p2Btn8": {
+        "label": "P2 Button 8"
+      },
+      "p2Select": {
+        "label": "P2 Select"
+      }
+    },
+    "touch": {
+      "title": "touch",
+      "p1Enable": {
+        "label": "Enable P1 Touch"
+      },
+      "p2Enable": {
+        "label": "Enable P2 Touch"
+      }
+    },
+    "keychip": {
+      "title": "keychip",
+      "enable": {
+        "label": "Enable keychip emulation",
+        "desc": "Enable keychip emulation. Disable to use a real keychip."
+      },
+      "id": {
+        "label": "Keychip ID",
+        "desc": "Keychip serial number."
+      },
+      "gameId": {
+        "label": "Game ID",
+        "desc": "Override the game's four-character model code."
+      },
+      "platformId": {
+        "label": "Platform ID",
+        "desc": "Override the game's four-character platform code."
+      },
+      "region": {
+        "label": "Region mask",
+        "desc": "Override the keychip's region code."
+      },
+      "billingCa": {
+        "label": "Billing CA path",
+        "desc": "Set the billing certificate path."
+      },
+      "billingPub": {
+        "label": "Billing public key path",
+        "desc": "Set the actual keychip RSA public key path."
+      },
+      "billingType": {
+        "label": "Billing type",
+        "desc": "Sets the billing type (1 = rental, 0 = purchase)."
+      },
+      "systemFlag": {
+        "label": "System flag",
+        "desc": "An 8-bit bitfield of unclear meaning."
+      },
+      "subnet": {
+        "label": "Subnet",
+        "desc": "The LAN IP range that the game will expect."
+      }
+    },
+    "netenv": {
+      "title": "netenv",
+      "enable": {
+        "label": "Enable network virtualization",
+        "desc": "Enable network environment virtualization."
+      },
+      "addrSuffix": {
+        "label": "Address suffix",
+        "desc": "The final octet of the local host's IP address on the virtualized subnet."
+      },
+      "routerSuffix": {
+        "label": "Gateway suffix",
+        "desc": "The final octet of the default gateway's IP address on the virtualized subnet."
+      },
+      "macAddr": {
+        "label": "MAC address",
+        "desc": "The MAC address of the virtualized Ethernet adapter."
+      }
+    },
+    "pcbid": {
+      "title": "pcbid",
+      "enable": {
+        "label": "Enable hostname virtualization",
+        "desc": "Enable Windows host name virtualization."
+      },
+      "serialNo": {
+        "label": "Serial number",
+        "desc": "Set the Windows host name. This should be an ALLS MAIN ID."
+      }
+    },
+    "sram": {
+      "title": "sram",
+      "enable": {
+        "label": "Enable SRAM emulation",
+        "desc": "Enable SRAM emulation. Disable to use the SRAM on a real AMEX."
+      },
+      "path": {
+        "label": "SRAM path",
+        "desc": "Path to the storage file for SRAM emulation."
+      }
+    },
+    "vfs": {
+      "title": "vfs",
+      "enable": {
+        "label": "Enable path redirection",
+        "desc": "Enable path redirection."
+      },
+      "amfs": {
+        "label": "AMFS path",
+        "desc": "Configure the location of the SEGA AMFS volume."
+      },
+      "appdata": {
+        "label": "APPDATA path",
+        "desc": "Configure the location of the SEGA \"APPDATA\" volume."
+      },
+      "option": {
+        "label": "Option path",
+        "desc": "Configure the location of the \"Option\" data mount point."
+      }
+    },
+    "epay": {
+      "title": "epay",
+      "enable": {
+        "label": "Enable E-pay",
+        "desc": "Enables the Thinca emulation."
+      },
+      "hook": {
+        "label": "Enable hook",
+        "desc": "Enables hooking of respective Thinca DLL functions to emulate the existence of E-Money."
+      }
+    },
+    "openssl": {
+      "title": "openssl",
+      "enable": {
+        "label": "Enable OpenSSL hook",
+        "desc": "Enables the OpenSSL hook to fix the SHA extension bug on Intel CPUs."
+      },
+      "override": {
+        "label": "Force override",
+        "desc": "Enables the override to always hook the OpenSSL env variable."
+      }
+    },
+    "system": {
+      "title": "system",
+      "enable": {
+        "label": "Enable ALLS system",
+        "desc": "Enable ALLS system settings."
+      },
+      "freeplay": {
+        "label": "Freeplay",
+        "desc": "Enable freeplay mode. This will disable the coin slot."
+      },
+      "dipsw1": {
+        "label": "DIP 1 (LAN Install)",
+        "desc": "LAN Install: 1 = Server, 0 = Client."
+      },
+      "dipsw2": {
+        "label": "DIP 2 (Monitor)",
+        "desc": "Monitor type: 0 = 120FPS, 1 = 60FPS (Chunithm)."
+      },
+      "dipsw3": {
+        "label": "DIP 3 (Cab Type)",
+        "desc": "Cab type: 0 = SP, 1 = CVT (Chunithm)."
+      }
+    },
+    "led15070": {
+      "title": "led15070",
+      "enable": {
+        "label": "Enable LED emulation",
+        "desc": "Enable emulation of the 837-15070-04 controlled lights."
+      }
+    },
+    "unity": {
+      "title": "unity",
+      "enable": {
+        "label": "Enable Unity hook",
+        "desc": "Enable Unity hook. This will allow you to run custom .NET code before the game."
+      },
+      "targetAssembly": {
+        "label": "Target Assembly",
+        "desc": "Path to a .NET DLL that should run before the game."
+      }
+    }
+  }
+}

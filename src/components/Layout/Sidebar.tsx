@@ -1,6 +1,9 @@
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 function Sidebar() {
+  const { t } = useTranslation();
+  
   return (
     <aside className="layout-sidebar">
       <div className="layout-sidebar-title">Navigation</div>
@@ -8,19 +11,19 @@ function Sidebar() {
         to="/games" 
         className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
       >
-        Games
+        {t('nav.games')}
       </NavLink>
       <NavLink 
         to="/config" 
         className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
       >
-        Config Editor
+        {t('nav.config')}
       </NavLink>
       <NavLink 
         to="/settings" 
         className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
       >
-        Settings
+        {t('nav.settings')}
       </NavLink>
     </aside>
   );

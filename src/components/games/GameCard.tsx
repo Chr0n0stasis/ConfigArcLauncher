@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Game, ConfigProfile } from '../../types/games';
 import './games.css';
 
@@ -13,6 +14,7 @@ type Props = {
 };
 
 function GameCard({ game, profiles, isActive, onEdit, onDelete, onLaunch, onActivate }: Props) {
+  const { t } = useTranslation();
   const [profileId, setProfileId] = useState<string>('');
 
   return (
@@ -20,19 +22,19 @@ function GameCard({ game, profiles, isActive, onEdit, onDelete, onLaunch, onActi
       <div className="game-card-header">
         <div className="game-title">
           {game.name}
-          {isActive && <span className="game-status active">Active</span>}
-          {!game.enabled && <span className="game-status disabled">Disabled</span>}
+          {isActive && <span className="game-status active">{t('common.active')}</span>}
+          {!game.enabled && <span className="game-status disabled">{t('common.disabled')}</span>}
         </div>
         <div className="game-actions">
-          <button onClick={onActivate}>{isActive ? 'Active' : 'Activate'}</button>
-          <button onClick={onEdit}>Edit</button>
-          <button className="danger" onClick={onDelete}>Delete</button>
+          <button onClick={onActivate}>{isActive ? t('common.active') : t('common.activate')}</button>
+          <button onClick={onEdit}>{t('common.edit')}</button>
+          <button className="danger" onClick={onDelete}>{t('common.delete')}</button>
         </div>
       </div>
       <div className="game-details">
-        <div>Exec: {game.executable_path}</div>
-        {game.working_dir && <div>Workdir: {game.working_dir}</div>}
-        {game.launch_args.length > 0 && <div>Args: {game.launch_args.join(' ')}</div>}
+        <div>{t('games.exec')}: {game.executable_path}</div>
+        {game.working_dir && <div>{t('games.workdir')}: {game.working_dir}</div>}
+        {game.launch_args.length > 0 && <div>{t('games.args')}: {game.launch_args.join(' ')}</div>}
       </div>
       <div className="game-launch-area">
         <select 
@@ -40,12 +42,12 @@ function GameCard({ game, profiles, isActive, onEdit, onDelete, onLaunch, onActi
           value={profileId} 
           onChange={(e) => setProfileId(e.target.value)}
         >
-          <option value="">Current File (segatools.ini)</option>
+          <option value="">{t('games.currentFile')}</option>
           {profiles.map((p) => (
             <option key={p.id} value={p.id}>{p.name}</option>
           ))}
         </select>
-        <button className="primary" onClick={() => onLaunch(profileId || undefined)}>Launch</button>
+        <button className="primary" onClick={() => onLaunch(profileId || undefined)}>{t('common.launch')}</button>
       </div>
     </div>
   );

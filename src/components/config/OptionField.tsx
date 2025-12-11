@@ -1,6 +1,7 @@
 import './config.css';
 import { VK_MAP, mapKeyToVK } from '../../utils/vkCodes';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   label: string;
@@ -12,6 +13,7 @@ type Props = {
 };
 
 function OptionField({ label, type, value, onChange, helper, description }: Props) {
+  const { t } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -39,7 +41,7 @@ function OptionField({ label, type, value, onChange, helper, description }: Prop
     }
     if (type === 'key') {
       const displayValue = isRecording 
-        ? 'Press any key...' 
+        ? t('common.pressAnyKey')
         : (VK_MAP[value as number] ? `${VK_MAP[value as number]} (0x${(value as number).toString(16).toUpperCase()})` : `0x${(value as number || 0).toString(16).toUpperCase()}`);
       
       return (

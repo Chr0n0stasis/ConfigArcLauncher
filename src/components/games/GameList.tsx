@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Game, ConfigProfile } from '../../types/games';
 import GameCard from './GameCard';
 import './games.css';
@@ -14,8 +15,10 @@ type Props = {
 };
 
 function GameList({ games, profiles, activeGameId, onEdit, onDelete, onLaunch, onActivate }: Props) {
+  const { t } = useTranslation();
+
   if (!games.length) {
-    return <p style={{ color: 'var(--text-muted)', textAlign: 'center', marginTop: 40 }}>No games added yet.</p>;
+    return <p style={{ color: 'var(--text-muted)', textAlign: 'center', marginTop: 40 }}>{t('games.noGames')}</p>;
   }
 
   return (
