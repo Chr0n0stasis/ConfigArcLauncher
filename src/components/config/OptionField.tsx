@@ -6,9 +6,10 @@ type Props = {
   value: any;
   onChange: (val: any) => void;
   helper?: string;
+  description?: string;
 };
 
-function OptionField({ label, type, value, onChange, helper }: Props) {
+function OptionField({ label, type, value, onChange, helper, description }: Props) {
   const renderInput = () => {
     if (type === 'checkbox') {
       return (
@@ -48,6 +49,11 @@ function OptionField({ label, type, value, onChange, helper }: Props) {
       </div>
       <div className="option-input-wrapper">
         {renderInput()}
+        {description && (
+          <div className="option-tooltip">
+            {description}
+          </div>
+        )}
       </div>
     </label>
   );

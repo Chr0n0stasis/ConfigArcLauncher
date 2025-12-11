@@ -24,18 +24,12 @@ function GameEditorDialog({ game, onSave, onCancel }: Props) {
     setError(null);
     try {
       const detectedGame = await invokeTauri<Game>('pick_game_folder_cmd');
-      // Merge detected fields but keep ID if editing existing game?
-      // Actually, if it's a new game, ID is empty. If editing, ID is set.
-      // The detected game has a random ID.
-      // We should probably keep the current ID if it exists.
       setDraft(prev => ({
         ...prev,
         name: detectedGame.name,
         executable_path: detectedGame.executable_path,
         working_dir: detectedGame.working_dir,
         launch_args: detectedGame.launch_args,
-        // Keep enabled/tags/id from previous state if needed, or overwrite?
-        // Overwriting seems safer for a "reset"
       }));
     } catch (err: any) {
       setError(String(err));

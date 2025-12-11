@@ -26,7 +26,7 @@ export function useConfigState() {
       setActiveGameId(active);
       if (!active) {
         setConfig(null);
-        setError('请先绑定并激活一个游戏');
+        setError('No active game selected');
         return;
       }
       const cfg = await loadSegatoolsConfig();
