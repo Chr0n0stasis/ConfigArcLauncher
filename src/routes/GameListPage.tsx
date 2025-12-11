@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react';
 import GameList from '../components/games/GameList';
 import GameEditorDialog from '../components/games/GameEditorDialog';
+import { ConfirmDialog } from '../components/common/ConfirmDialog';
 import { useGamesState } from '../state/gamesStore';
 import { useProfilesState } from '../state/configStore';
 import { Game } from '../types/games';
@@ -20,6 +21,7 @@ function GameListPage() {
   const { games, loading, error, activeGameId, reload, saveGame, deleteGame, activateGame } = useGamesState();
   const { profiles } = useProfilesState();
   const [editing, setEditing] = useState<Game | null>(null);
+  const [gameToDelete, setGameToDelete] = useState<string | null>(null);
 
   const sortedGames = useMemo(() => [...games].sort((a, b) => a.name.localeCompare(b.name)), [games]);
 
@@ -34,6 +36,17 @@ function GameListPage() {
     } catch (err) {
       console.error(err);
       alert(`Failed to launch game: ${err}`);
+    }
+  };
+
+  const handleDeleteRequest = async (id: string) => {
+    setGameToDelete(id);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (gameToDelete) {
+      await deleteGame(gameToDelete);
+      setGameToDelete(null);
     }
   };
 
@@ -53,7 +66,7 @@ function GameListPage() {
         profiles={profiles}
         activeGameId={activeGameId || undefined}
         onEdit={setEditing}
-        onDelete={deleteGame}
+        onDelete={handleDeleteRequest}
         onLaunch={handleLaunch}
         onActivate={activateGame}
         onRefresh={reload}
@@ -63,6 +76,15 @@ function GameListPage() {
           game={editing}
           onSave={handleSave}
           onCancel={() => setEditing(null)}
+        />
+      )}
+      {gameToDelete && (
+        <ConfirmDialog
+          title="Delete Game"
+          message="Are you sure you want to delete this game? This action cannot be undone."
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setGameToDelete(null)}
+          isDangerous={true}
         />
       )}
     </div>

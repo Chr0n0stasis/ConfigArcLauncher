@@ -22,6 +22,42 @@ export interface SegatoolsConfig {
   vfs: VfsConfig;
   epay: EpayConfig;
   openssl: OpensslConfig;
+  system: SystemConfig;
+  led15070: Led15070Config;
+  unity: UnityConfig;
+  mai2io: Mai2IoConfig;
+  button: ButtonConfig;
+  touch: TouchConfig;
+  presentSections?: string[];
+}
+
+export interface Mai2IoConfig { path: string; }
+
+export interface ButtonConfig {
+  enable: boolean;
+  p1Btn1: number;
+  p1Btn2: number;
+  p1Btn3: number;
+  p1Btn4: number;
+  p1Btn5: number;
+  p1Btn6: number;
+  p1Btn7: number;
+  p1Btn8: number;
+  p1Select: number;
+  p2Btn1: number;
+  p2Btn2: number;
+  p2Btn3: number;
+  p2Btn4: number;
+  p2Btn5: number;
+  p2Btn6: number;
+  p2Btn7: number;
+  p2Btn8: number;
+  p2Select: number;
+}
+
+export interface TouchConfig {
+  p1Enable: boolean;
+  p2Enable: boolean;
 }
 
 export interface AimeioConfig { path: string; }
@@ -160,4 +196,21 @@ export interface EpayConfig {
 export interface OpensslConfig {
   enable: boolean;
   override: boolean;
+}
+
+export interface SystemConfig {
+  enable: boolean;
+  freeplay: boolean;
+  dipsw1: boolean;
+  dipsw2: boolean;
+  dipsw3: boolean;
+}
+
+export interface Led15070Config {
+  enable: boolean;
+}
+
+export interface UnityConfig {
+  enable: boolean;
+  targetAssembly: string;
 }

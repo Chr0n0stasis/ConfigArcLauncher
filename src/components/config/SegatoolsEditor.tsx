@@ -1,11 +1,12 @@
 import SectionAccordion from './SectionAccordion';
 import OptionField from './OptionField';
 import { SegatoolsConfig } from '../../types/config';
+import { Game } from '../../types/games';
 
 type FieldSpec = {
   name: string;
   label: string;
-  type: 'text' | 'number' | 'checkbox';
+  type: 'text' | 'number' | 'checkbox' | 'key';
   helper?: string;
   description?: string;
 };
@@ -19,14 +20,25 @@ type SectionSpec = {
 type Props = {
   config: SegatoolsConfig;
   onChange: (next: SegatoolsConfig) => void;
+  activeGame?: Game;
 };
 
-const sections: SectionSpec[] = [
+function getSections(gameName?: string): SectionSpec[] {
+  const isChunithm = gameName === 'Chunithm';
+  
+  return [
   { 
     key: 'aimeio', 
     title: 'aimeio', 
     fields: [
       { name: 'path', label: 'Driver path', type: 'text', description: 'Specify a path for a third-party card reader driver DLL. Default is empty (use built-in emulation based on text files and keyboard input).' }
+    ] 
+  },
+  { 
+    key: 'mai2io', 
+    title: 'mai2io', 
+    fields: [
+      { name: 'path', label: 'Driver path', type: 'text', description: 'Specify a path for a third-party maimai DX IO driver DLL.' }
     ] 
   },
   {
@@ -41,7 +53,7 @@ const sections: SectionSpec[] = [
       { name: 'aimeGen', label: 'Generate Aime ID', type: 'checkbox', description: 'Whether to generate a random AiMe ID if the file at aimePath does not exist.' },
       { name: 'felicaPath', label: 'FeliCa file', type: 'text', description: 'Path to a text file containing a FeliCa e-cash card IDm serial number.' },
       { name: 'felicaGen', label: 'Generate FeliCa ID', type: 'checkbox', description: 'Whether to generate a random FeliCa ID if the file at felicaPath does not exist.' },
-      { name: 'scan', label: 'Scan key (VK code)', type: 'number', description: 'Virtual-key code. If this button is held then the emulated IC card reader emulates an IC card in its proximity.' },
+      { name: 'scan', label: 'Scan key (VK code)', type: 'key', description: 'Virtual-key code. If this button is held then the emulated IC card reader emulates an IC card in its proximity.' },
       { name: 'proxyFlag', label: 'Proxy flag', type: 'number' },
       { name: 'authdataPath', label: 'Auth data path', type: 'text' }
     ]
@@ -103,8 +115,8 @@ const sections: SectionSpec[] = [
     title: 'gpio',
     fields: [
       { name: 'enable', label: 'Enable GPIO', type: 'checkbox', description: 'Enable GPIO emulation. Disable to use the GPIO controller on a real AMEX.' },
-      { name: 'sw1', label: 'SW1 key', type: 'number', description: 'Keyboard binding for Nu chassis SW1 button (alternative Test).' },
-      { name: 'sw2', label: 'SW2 key', type: 'number', description: 'Keyboard binding for Nu chassis SW2 button (alternative Service).' },
+      { name: 'sw1', label: 'SW1 key', type: 'key', description: 'Keyboard binding for Nu chassis SW1 button (alternative Test).' },
+      { name: 'sw2', label: 'SW2 key', type: 'key', description: 'Keyboard binding for Nu chassis SW2 button (alternative Service).' },
       { name: 'dipsw1', label: 'DIP 1', type: 'checkbox', description: 'Nu chassis DIP switch 1.' },
       { name: 'dipsw2', label: 'DIP 2', type: 'checkbox', description: 'Nu chassis DIP switch 2.' },
       { name: 'dipsw3', label: 'DIP 3', type: 'checkbox', description: 'Nu chassis DIP switch 3.' },
@@ -141,9 +153,42 @@ const sections: SectionSpec[] = [
     fields: [
       { name: 'enable', label: 'Enable IO4', type: 'checkbox', description: 'Enable IO4 port emulation. Disable to use the IO4 port on a real ALLS.' },
       { name: 'foreground', label: 'Input only when focused', type: 'checkbox', description: 'Only enables input when the game\'s main window is focused.' },
-      { name: 'test', label: 'Test key', type: 'number', description: 'Test button virtual-key code.' },
-      { name: 'service', label: 'Service key', type: 'number', description: 'Service button virtual-key code.' },
-      { name: 'coin', label: 'Coin key', type: 'number', description: 'Keyboard button to increment coin counter.' }
+      { name: 'test', label: 'Test key', type: 'key', description: 'Test button virtual-key code.' },
+      { name: 'service', label: 'Service key', type: 'key', description: 'Service button virtual-key code.' },
+      { name: 'coin', label: 'Coin key', type: 'key', description: 'Keyboard button to increment coin counter.' }
+    ]
+  },
+  {
+    key: 'button',
+    title: 'button',
+    fields: [
+      { name: 'enable', label: 'Enable button emulation', type: 'checkbox' },
+      { name: 'p1Btn1', label: 'P1 Button 1', type: 'key' },
+      { name: 'p1Btn2', label: 'P1 Button 2', type: 'key' },
+      { name: 'p1Btn3', label: 'P1 Button 3', type: 'key' },
+      { name: 'p1Btn4', label: 'P1 Button 4', type: 'key' },
+      { name: 'p1Btn5', label: 'P1 Button 5', type: 'key' },
+      { name: 'p1Btn6', label: 'P1 Button 6', type: 'key' },
+      { name: 'p1Btn7', label: 'P1 Button 7', type: 'key' },
+      { name: 'p1Btn8', label: 'P1 Button 8', type: 'key' },
+      { name: 'p1Select', label: 'P1 Select', type: 'key' },
+      { name: 'p2Btn1', label: 'P2 Button 1', type: 'key' },
+      { name: 'p2Btn2', label: 'P2 Button 2', type: 'key' },
+      { name: 'p2Btn3', label: 'P2 Button 3', type: 'key' },
+      { name: 'p2Btn4', label: 'P2 Button 4', type: 'key' },
+      { name: 'p2Btn5', label: 'P2 Button 5', type: 'key' },
+      { name: 'p2Btn6', label: 'P2 Button 6', type: 'key' },
+      { name: 'p2Btn7', label: 'P2 Button 7', type: 'key' },
+      { name: 'p2Btn8', label: 'P2 Button 8', type: 'key' },
+      { name: 'p2Select', label: 'P2 Select', type: 'key' },
+    ]
+  },
+  {
+    key: 'touch',
+    title: 'touch',
+    fields: [
+      { name: 'p1Enable', label: 'Enable P1 Touch', type: 'checkbox' },
+      { name: 'p2Enable', label: 'Enable P2 Touch', type: 'checkbox' },
     ]
   },
   {
@@ -213,10 +258,51 @@ const sections: SectionSpec[] = [
       { name: 'enable', label: 'Enable OpenSSL hook', type: 'checkbox', description: 'Enables the OpenSSL hook to fix the SHA extension bug on Intel CPUs.' },
       { name: 'override', label: 'Force override', type: 'checkbox', description: 'Enables the override to always hook the OpenSSL env variable.' }
     ]
+  },
+  {
+    key: 'system',
+    title: 'system',
+    fields: [
+      { name: 'enable', label: 'Enable ALLS system', type: 'checkbox', description: 'Enable ALLS system settings.' },
+      { name: 'freeplay', label: 'Freeplay', type: 'checkbox', description: 'Enable freeplay mode. This will disable the coin slot.' },
+      { name: 'dipsw1', label: 'DIP 1 (LAN Install)', type: 'checkbox', description: 'LAN Install: 1 = Server, 0 = Client.' },
+      ...(isChunithm ? [
+        { 
+          name: 'dipsw2', 
+          label: 'DIP 2 (Monitor)', 
+          type: 'checkbox' as const, 
+          description: 'Monitor type: 0 = 120FPS, 1 = 60FPS (Chunithm).' 
+        },
+        { 
+          name: 'dipsw3', 
+          label: 'DIP 3 (Cab Type)', 
+          type: 'checkbox' as const, 
+          description: 'Cab type: 0 = SP, 1 = CVT (Chunithm).' 
+        }
+      ] : [])
+    ]
+  },
+  {
+    key: 'led15070',
+    title: 'led15070',
+    fields: [
+      { name: 'enable', label: 'Enable LED emulation', type: 'checkbox', description: 'Enable emulation of the 837-15070-04 controlled lights.' }
+    ]
+  },
+  {
+    key: 'unity',
+    title: 'unity',
+    fields: [
+      { name: 'enable', label: 'Enable Unity hook', type: 'checkbox', description: 'Enable Unity hook. This will allow you to run custom .NET code before the game.' },
+      { name: 'targetAssembly', label: 'Target Assembly', type: 'text', description: 'Path to a .NET DLL that should run before the game.' }
+    ]
   }
 ];
+}
 
-function SegatoolsEditor({ config, onChange }: Props) {
+function SegatoolsEditor({ config, onChange, activeGame }: Props) {
+  const sections = getSections(activeGame?.name);
+
   const updateValue = (section: keyof SegatoolsConfig, field: string, value: any) => {
     onChange({
       ...config,
@@ -227,9 +313,18 @@ function SegatoolsEditor({ config, onChange }: Props) {
     });
   };
 
+  const visibleSections = sections.filter(section => {
+    // If presentSections is available and has items, only show those sections.
+    // Otherwise (e.g. new file or legacy backend), show all sections.
+    if (config.presentSections && config.presentSections.length > 0) {
+      return config.presentSections.includes(section.key as string);
+    }
+    return true;
+  });
+
   return (
     <div style={{ display: 'grid', gap: 10 }}>
-      {sections.map((section) => (
+      {visibleSections.map((section) => (
         <SectionAccordion key={section.key as string} title={section.title}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px 24px', alignItems: 'start' }}>
             {section.fields.map((field) => (

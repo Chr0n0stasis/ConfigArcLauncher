@@ -23,11 +23,20 @@ pub struct SegatoolsConfig {
   pub vfs: VfsConfig,
   pub epay: EpayConfig,
   pub openssl: OpensslConfig,
+  pub system: SystemConfig,
+  pub led15070: Led15070Config,
+  pub unity: UnityConfig,
+  pub mai2io: Mai2IoConfig,
+  pub button: ButtonConfig,
+  pub touch: TouchConfig,
+  #[serde(default)]
+  pub present_sections: Vec<String>,
 }
 
 impl Default for SegatoolsConfig {
   fn default() -> Self {
     SegatoolsConfig {
+      present_sections: vec![],
       aimeio: AimeioConfig::default(),
       aime: AimeConfig::default(),
       vfd: VfdConfig::default(),
@@ -48,6 +57,98 @@ impl Default for SegatoolsConfig {
       vfs: VfsConfig::default(),
       epay: EpayConfig::default(),
       openssl: OpensslConfig::default(),
+      system: SystemConfig::default(),
+      led15070: Led15070Config::default(),
+      unity: UnityConfig::default(),
+      mai2io: Mai2IoConfig::default(),
+      button: ButtonConfig::default(),
+      touch: TouchConfig::default(),
+    }
+  }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Mai2IoConfig {
+  pub path: String,
+}
+
+impl Default for Mai2IoConfig {
+  fn default() -> Self {
+    Self { path: String::new() }
+  }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ButtonConfig {
+  pub enable: bool,
+  #[serde(rename = "p1Btn1")]
+  pub p1_btn1: u32,
+  #[serde(rename = "p1Btn2")]
+  pub p1_btn2: u32,
+  #[serde(rename = "p1Btn3")]
+  pub p1_btn3: u32,
+  #[serde(rename = "p1Btn4")]
+  pub p1_btn4: u32,
+  #[serde(rename = "p1Btn5")]
+  pub p1_btn5: u32,
+  #[serde(rename = "p1Btn6")]
+  pub p1_btn6: u32,
+  #[serde(rename = "p1Btn7")]
+  pub p1_btn7: u32,
+  #[serde(rename = "p1Btn8")]
+  pub p1_btn8: u32,
+  #[serde(rename = "p1Select")]
+  pub p1_select: u32,
+  #[serde(rename = "p2Btn1")]
+  pub p2_btn1: u32,
+  #[serde(rename = "p2Btn2")]
+  pub p2_btn2: u32,
+  #[serde(rename = "p2Btn3")]
+  pub p2_btn3: u32,
+  #[serde(rename = "p2Btn4")]
+  pub p2_btn4: u32,
+  #[serde(rename = "p2Btn5")]
+  pub p2_btn5: u32,
+  #[serde(rename = "p2Btn6")]
+  pub p2_btn6: u32,
+  #[serde(rename = "p2Btn7")]
+  pub p2_btn7: u32,
+  #[serde(rename = "p2Btn8")]
+  pub p2_btn8: u32,
+  #[serde(rename = "p2Select")]
+  pub p2_select: u32,
+}
+
+impl Default for ButtonConfig {
+  fn default() -> Self {
+    Self {
+      enable: true,
+      p1_btn1: 0, p1_btn2: 0, p1_btn3: 0, p1_btn4: 0,
+      p1_btn5: 0, p1_btn6: 0, p1_btn7: 0, p1_btn8: 0,
+      p1_select: 0,
+      p2_btn1: 0, p2_btn2: 0, p2_btn3: 0, p2_btn4: 0,
+      p2_btn5: 0, p2_btn6: 0, p2_btn7: 0, p2_btn8: 0,
+      p2_select: 0,
+    }
+  }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct TouchConfig {
+  #[serde(rename = "p1Enable")]
+  pub p1_enable: bool,
+  #[serde(rename = "p2Enable")]
+  pub p2_enable: bool,
+}
+
+impl Default for TouchConfig {
+  fn default() -> Self {
+    Self {
+      p1_enable: true,
+      p2_enable: true,
     }
   }
 }
@@ -555,6 +656,57 @@ impl Default for OpensslConfig {
     Self {
       enable: true,
       override_flag: false,
+    }
+  }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SystemConfig {
+  pub enable: bool,
+  pub freeplay: bool,
+  pub dipsw1: bool,
+  pub dipsw2: bool,
+  pub dipsw3: bool,
+}
+
+impl Default for SystemConfig {
+  fn default() -> Self {
+    Self {
+      enable: true,
+      freeplay: false,
+      dipsw1: false,
+      dipsw2: false,
+      dipsw3: false,
+    }
+  }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct Led15070Config {
+  pub enable: bool,
+}
+
+impl Default for Led15070Config {
+  fn default() -> Self {
+    Self { enable: true }
+  }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct UnityConfig {
+  pub enable: bool,
+  #[serde(rename = "targetAssembly")]
+  pub target_assembly: String,
+}
+
+impl Default for UnityConfig {
+  fn default() -> Self {
+    Self {
+      enable: true,
+      target_assembly: String::new(),
     }
   }
 }

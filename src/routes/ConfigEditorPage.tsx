@@ -1,31 +1,47 @@
 import { useEffect, useMemo, useState } from 'react';
 import SegatoolsEditor from '../components/config/SegatoolsEditor';
 import { useConfigState, useProfilesState } from '../state/configStore';
+import { useGamesState } from '../state/gamesStore';
 import { ConfigProfile } from '../types/games';
 import { SegatoolsConfig } from '../types/config';
 import { useToast, ToastContainer } from '../components/common/Toast';
+import { PromptDialog } from '../components/common/PromptDialog';
+import { ConfirmDialog } from '../components/common/ConfirmDialog';
 
 function ConfigEditorPage() {
   const { config, setConfig, loading, saving, error, activeGameId, reload, save, resetToDefaults } = useConfigState();
   const { profiles, reload: reloadProfiles, saveProfile, deleteProfile, loadProfile } = useProfilesState();
+  const { games } = useGamesState();
   const [selectedProfileId, setSelectedProfileId] = useState<string>('');
   const { toasts, showToast } = useToast();
+
+  const [showNewProfileDialog, setShowNewProfileDialog] = useState(false);
+  const [showDeleteProfileDialog, setShowDeleteProfileDialog] = useState(false);
+
+  const activeGame = useMemo(() => games.find(g => g.id === activeGameId), [games, activeGameId]);
+  const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     reloadProfiles();
   }, [reloadProfiles]);
 
   useEffect(() => {
-    if (!selectedProfileId && profiles.length) {
-      // Try to find "Original INI" first, otherwise default to first
-      const original = profiles.find(p => p.name === "Original INI");
-      if (original) {
-        setSelectedProfileId(original.id);
+    if (profiles.length > 0 && activeGameId && !initialized) {
+      setInitialized(true);
+      const last = localStorage.getItem(`lastProfile:${activeGameId}`);
+      if (last && profiles.some(p => p.id === last)) {
+        setSelectedProfileId(last);
       } else {
-        setSelectedProfileId(profiles[0].id);
+        // Try to find "Original INI" first, otherwise default to first
+        const original = profiles.find(p => p.name === "Original INI");
+        if (original) {
+          setSelectedProfileId(original.id);
+        } else {
+          setSelectedProfileId(profiles[0].id);
+        }
       }
     }
-  }, [profiles, selectedProfileId]);
+  }, [profiles, activeGameId, initialized]);
 
   // Removed redundant useEffect that was causing double-load issues
 
@@ -33,40 +49,45 @@ function ConfigEditorPage() {
 
   const handleProfileSave = async () => {
     if (!config) return;
-    let profile: ConfigProfile | undefined = profiles.find((p) => p.id === selectedProfileId);
+    const profile = profiles.find((p) => p.id === selectedProfileId);
     if (!profile) {
-      const name = prompt('Profile name', 'New Profile');
-      if (!name) return;
-      profile = {
-        id: crypto.randomUUID ? crypto.randomUUID() : `profile-${Date.now()}`,
-        name,
-        description: '',
-        segatools: config,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-      };
-    } else {
-      profile = { ...profile, segatools: config, updated_at: new Date().toISOString() };
+      setShowNewProfileDialog(true);
+      return;
     }
-    await saveProfile(profile);
-    setSelectedProfileId(profile.id);
+    
+    const updatedProfile = {
+      ...profile,
+      segatools: config,
+      updated_at: new Date().toISOString()
+    };
+    await saveProfile(updatedProfile);
     reloadProfiles();
     showToast('Profile saved successfully!', 'success');
   };
 
-  const handleProfileDelete = async () => {
+  const handleProfileDelete = () => {
+    if (!selectedProfileId) return;
+    setShowDeleteProfileDialog(true);
+  };
+
+  const onConfirmDeleteProfile = async () => {
     if (!selectedProfileId) return;
     await deleteProfile(selectedProfileId);
     setSelectedProfileId('');
+    if (activeGameId) localStorage.removeItem(`lastProfile:${activeGameId}`);
     reloadProfiles();
     reload();
     showToast('Profile deleted', 'info');
+    setShowDeleteProfileDialog(false);
   };
 
-  const handleCreateProfile = async () => {
+  const handleCreateProfile = () => {
     if (!config) return;
-    const name = prompt('New profile name');
-    if (!name) return;
+    setShowNewProfileDialog(true);
+  };
+
+  const onConfirmCreateProfile = async (name: string) => {
+    if (!config || !name) return;
     const profile: ConfigProfile = {
       id: crypto.randomUUID ? crypto.randomUUID() : `profile-${Date.now()}`,
       name,
@@ -77,12 +98,21 @@ function ConfigEditorPage() {
     };
     await saveProfile(profile);
     setSelectedProfileId(profile.id);
+    if (activeGameId) localStorage.setItem(`lastProfile:${activeGameId}`, profile.id);
     reloadProfiles();
     showToast('Profile created', 'success');
+    setShowNewProfileDialog(false);
   };
 
   const handleProfileLoad = async (id: string) => {
     setSelectedProfileId(id);
+    if (activeGameId) {
+      if (id) {
+        localStorage.setItem(`lastProfile:${activeGameId}`, id);
+      } else {
+        localStorage.removeItem(`lastProfile:${activeGameId}`);
+      }
+    }
     if (!id) {
       await reload();
       showToast('Loaded current file', 'info');
@@ -139,12 +169,31 @@ function ConfigEditorPage() {
       <SegatoolsEditor
         config={config}
         onChange={(next: SegatoolsConfig) => setConfig(next)}
+        activeGame={activeGame}
       />
       <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
         <button onClick={() => { save(config); showToast('Config saved to disk', 'success'); }} disabled={saving}>Save Config</button>
         <button onClick={resetToDefaults}>Reset to Defaults</button>
         <button onClick={() => { reload(); showToast('Reloaded from disk', 'info'); }}>Reload from Disk</button>
       </div>
+      {showNewProfileDialog && (
+        <PromptDialog
+          title="Create New Profile"
+          label="Enter a name for the new profile:"
+          defaultValue=""
+          onConfirm={onConfirmCreateProfile}
+          onCancel={() => setShowNewProfileDialog(false)}
+        />
+      )}
+      {showDeleteProfileDialog && (
+        <ConfirmDialog
+          title="Delete Profile"
+          message="Are you sure you want to delete this profile? This action cannot be undone."
+          onConfirm={onConfirmDeleteProfile}
+          onCancel={() => setShowDeleteProfileDialog(false)}
+          isDangerous={true}
+        />
+      )}
       <ToastContainer toasts={toasts} />
     </div>
   );

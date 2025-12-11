@@ -66,6 +66,11 @@ pub fn load_segatoools_config(path: &Path) -> Result<SegatoolsConfig, ConfigErro
 
   let mut cfg = SegatoolsConfig::default();
 
+  // Populate present_sections
+  if let Some(map) = parser.get_map() {
+    cfg.present_sections = map.keys().map(|k| k.to_lowercase()).collect();
+  }
+
   cfg.aimeio.path = read_string(&parser, "aimeio", "path", &cfg.aimeio.path);
 
   cfg.aime.enable = read_bool(&parser, "aime", "enable", cfg.aime.enable);
@@ -170,6 +175,42 @@ pub fn load_segatoools_config(path: &Path) -> Result<SegatoolsConfig, ConfigErro
   cfg.openssl.enable = read_bool(&parser, "openssl", "enable", cfg.openssl.enable);
   cfg.openssl.override_flag = read_bool(&parser, "openssl", "override", cfg.openssl.override_flag);
 
+  cfg.system.enable = read_bool(&parser, "system", "enable", cfg.system.enable);
+  cfg.system.freeplay = read_bool(&parser, "system", "freeplay", cfg.system.freeplay);
+  cfg.system.dipsw1 = read_bool(&parser, "system", "dipsw1", cfg.system.dipsw1);
+  cfg.system.dipsw2 = read_bool(&parser, "system", "dipsw2", cfg.system.dipsw2);
+  cfg.system.dipsw3 = read_bool(&parser, "system", "dipsw3", cfg.system.dipsw3);
+
+  cfg.led15070.enable = read_bool(&parser, "led15070", "enable", cfg.led15070.enable);
+
+  cfg.unity.enable = read_bool(&parser, "unity", "enable", cfg.unity.enable);
+  cfg.unity.target_assembly = read_string(&parser, "unity", "targetAssembly", &cfg.unity.target_assembly);
+
+  cfg.mai2io.path = read_string(&parser, "mai2io", "path", &cfg.mai2io.path);
+
+  cfg.button.enable = read_bool(&parser, "button", "enable", cfg.button.enable);
+  cfg.button.p1_btn1 = read_u32(&parser, "button", "p1Btn1", cfg.button.p1_btn1);
+  cfg.button.p1_btn2 = read_u32(&parser, "button", "p1Btn2", cfg.button.p1_btn2);
+  cfg.button.p1_btn3 = read_u32(&parser, "button", "p1Btn3", cfg.button.p1_btn3);
+  cfg.button.p1_btn4 = read_u32(&parser, "button", "p1Btn4", cfg.button.p1_btn4);
+  cfg.button.p1_btn5 = read_u32(&parser, "button", "p1Btn5", cfg.button.p1_btn5);
+  cfg.button.p1_btn6 = read_u32(&parser, "button", "p1Btn6", cfg.button.p1_btn6);
+  cfg.button.p1_btn7 = read_u32(&parser, "button", "p1Btn7", cfg.button.p1_btn7);
+  cfg.button.p1_btn8 = read_u32(&parser, "button", "p1Btn8", cfg.button.p1_btn8);
+  cfg.button.p1_select = read_u32(&parser, "button", "p1Select", cfg.button.p1_select);
+  cfg.button.p2_btn1 = read_u32(&parser, "button", "p2Btn1", cfg.button.p2_btn1);
+  cfg.button.p2_btn2 = read_u32(&parser, "button", "p2Btn2", cfg.button.p2_btn2);
+  cfg.button.p2_btn3 = read_u32(&parser, "button", "p2Btn3", cfg.button.p2_btn3);
+  cfg.button.p2_btn4 = read_u32(&parser, "button", "p2Btn4", cfg.button.p2_btn4);
+  cfg.button.p2_btn5 = read_u32(&parser, "button", "p2Btn5", cfg.button.p2_btn5);
+  cfg.button.p2_btn6 = read_u32(&parser, "button", "p2Btn6", cfg.button.p2_btn6);
+  cfg.button.p2_btn7 = read_u32(&parser, "button", "p2Btn7", cfg.button.p2_btn7);
+  cfg.button.p2_btn8 = read_u32(&parser, "button", "p2Btn8", cfg.button.p2_btn8);
+  cfg.button.p2_select = read_u32(&parser, "button", "p2Select", cfg.button.p2_select);
+
+  cfg.touch.p1_enable = read_bool(&parser, "touch", "p1Enable", cfg.touch.p1_enable);
+  cfg.touch.p2_enable = read_bool(&parser, "touch", "p2Enable", cfg.touch.p2_enable);
+
   Ok(cfg)
 }
 
@@ -179,215 +220,342 @@ pub fn save_segatoools_config(path: &Path, cfg: &SegatoolsConfig) -> Result<(), 
   }
   let mut ini = Ini::new();
 
-  save_section(
-    &mut ini,
-    "aimeio",
-    vec![("path", cfg.aimeio.path.clone())],
-  );
+  let should_save = |name: &str| -> bool {
+    if cfg.present_sections.is_empty() {
+      return true;
+    }
+    cfg.present_sections.contains(&name.to_lowercase())
+  };
 
-  save_section(
-    &mut ini,
-    "aime",
-    vec![
-      ("enable", bool_to_string(cfg.aime.enable)),
-      ("portNo", cfg.aime.port_no.to_string()),
-      ("highBaud", bool_to_string(cfg.aime.high_baud)),
-      ("gen", cfg.aime.gen.to_string()),
-      ("aimePath", cfg.aime.aime_path.clone()),
-      ("aimeGen", bool_to_string(cfg.aime.aime_gen)),
-      ("felicaPath", cfg.aime.felica_path.clone()),
-      ("felicaGen", bool_to_string(cfg.aime.felica_gen)),
-      ("scan", cfg.aime.scan.to_string()),
-      ("proxyFlag", cfg.aime.proxy_flag.to_string()),
-      ("authdataPath", cfg.aime.authdata_path.clone()),
-    ],
-  );
+  if should_save("aimeio") {
+    save_section(
+      &mut ini,
+      "aimeio",
+      vec![("path", cfg.aimeio.path.clone())],
+    );
+  }
 
-  save_section(
-    &mut ini,
-    "vfd",
-    vec![
-      ("enable", bool_to_string(cfg.vfd.enable)),
-      ("portNo", cfg.vfd.port_no.to_string()),
-      ("utfConversion", bool_to_string(cfg.vfd.utf_conversion)),
-    ],
-  );
+  if should_save("aime") {
+    save_section(
+      &mut ini,
+      "aime",
+      vec![
+        ("enable", bool_to_string(cfg.aime.enable)),
+        ("portNo", cfg.aime.port_no.to_string()),
+        ("highBaud", bool_to_string(cfg.aime.high_baud)),
+        ("gen", cfg.aime.gen.to_string()),
+        ("aimePath", cfg.aime.aime_path.clone()),
+        ("aimeGen", bool_to_string(cfg.aime.aime_gen)),
+        ("felicaPath", cfg.aime.felica_path.clone()),
+        ("felicaGen", bool_to_string(cfg.aime.felica_gen)),
+        ("scan", cfg.aime.scan.to_string()),
+        ("proxyFlag", cfg.aime.proxy_flag.to_string()),
+        ("authdataPath", cfg.aime.authdata_path.clone()),
+      ],
+    );
+  }
 
-  save_section(&mut ini, "amvideo", vec![("enable", bool_to_string(cfg.amvideo.enable))]);
+  if should_save("vfd") {
+    save_section(
+      &mut ini,
+      "vfd",
+      vec![
+        ("enable", bool_to_string(cfg.vfd.enable)),
+        ("portNo", cfg.vfd.port_no.to_string()),
+        ("utfConversion", bool_to_string(cfg.vfd.utf_conversion)),
+      ],
+    );
+  }
 
-  save_section(
-    &mut ini,
-    "clock",
-    vec![
-      ("timezone", bool_to_string(cfg.clock.timezone)),
-      ("timewarp", bool_to_string(cfg.clock.timewarp)),
-      ("writeable", bool_to_string(cfg.clock.writeable)),
-    ],
-  );
+  if should_save("amvideo") {
+    save_section(&mut ini, "amvideo", vec![("enable", bool_to_string(cfg.amvideo.enable))]);
+  }
 
-  save_section(
-    &mut ini,
-    "dns",
-    vec![
-      ("default", cfg.dns.default.clone()),
-      ("title", cfg.dns.title.clone()),
-      ("router", cfg.dns.router.clone()),
-      ("startup", cfg.dns.startup.clone()),
-      ("billing", cfg.dns.billing.clone()),
-      ("aimedb", cfg.dns.aimedb.clone()),
-      ("replaceHost", bool_to_string(cfg.dns.replace_host)),
-      ("startupPort", cfg.dns.startup_port.to_string()),
-      ("billingPort", cfg.dns.billing_port.to_string()),
-      ("aimedbPort", cfg.dns.aimedb_port.to_string()),
-    ],
-  );
+  if should_save("clock") {
+    save_section(
+      &mut ini,
+      "clock",
+      vec![
+        ("timezone", bool_to_string(cfg.clock.timezone)),
+        ("timewarp", bool_to_string(cfg.clock.timewarp)),
+        ("writeable", bool_to_string(cfg.clock.writeable)),
+      ],
+    );
+  }
 
-  save_section(
-    &mut ini,
-    "ds",
-    vec![
-      ("enable", bool_to_string(cfg.ds.enable)),
-      ("region", cfg.ds.region.to_string()),
-      ("serialNo", cfg.ds.serial_no.clone()),
-    ],
-  );
+  if should_save("dns") {
+    save_section(
+      &mut ini,
+      "dns",
+      vec![
+        ("default", cfg.dns.default.clone()),
+        ("title", cfg.dns.title.clone()),
+        ("router", cfg.dns.router.clone()),
+        ("startup", cfg.dns.startup.clone()),
+        ("billing", cfg.dns.billing.clone()),
+        ("aimedb", cfg.dns.aimedb.clone()),
+        ("replaceHost", bool_to_string(cfg.dns.replace_host)),
+        ("startupPort", cfg.dns.startup_port.to_string()),
+        ("billingPort", cfg.dns.billing_port.to_string()),
+        ("aimedbPort", cfg.dns.aimedb_port.to_string()),
+      ],
+    );
+  }
 
-  save_section(
-    &mut ini,
-    "eeprom",
-    vec![
-      ("enable", bool_to_string(cfg.eeprom.enable)),
-      ("path", cfg.eeprom.path.clone()),
-    ],
-  );
+  if should_save("ds") {
+    save_section(
+      &mut ini,
+      "ds",
+      vec![
+        ("enable", bool_to_string(cfg.ds.enable)),
+        ("region", cfg.ds.region.to_string()),
+        ("serialNo", cfg.ds.serial_no.clone()),
+      ],
+    );
+  }
 
-  save_section(
-    &mut ini,
-    "gpio",
-    vec![
-      ("enable", bool_to_string(cfg.gpio.enable)),
-      ("sw1", cfg.gpio.sw1.to_string()),
-      ("sw2", cfg.gpio.sw2.to_string()),
-      ("dipsw1", bool_to_string(cfg.gpio.dipsw1)),
-      ("dipsw2", bool_to_string(cfg.gpio.dipsw2)),
-      ("dipsw3", bool_to_string(cfg.gpio.dipsw3)),
-      ("dipsw4", bool_to_string(cfg.gpio.dipsw4)),
-      ("dipsw5", bool_to_string(cfg.gpio.dipsw5)),
-      ("dipsw6", bool_to_string(cfg.gpio.dipsw6)),
-      ("dipsw7", bool_to_string(cfg.gpio.dipsw7)),
-      ("dipsw8", bool_to_string(cfg.gpio.dipsw8)),
-    ],
-  );
+  if should_save("eeprom") {
+    save_section(
+      &mut ini,
+      "eeprom",
+      vec![
+        ("enable", bool_to_string(cfg.eeprom.enable)),
+        ("path", cfg.eeprom.path.clone()),
+      ],
+    );
+  }
 
-  save_section(
-    &mut ini,
-    "gfx",
-    vec![
-      ("enable", bool_to_string(cfg.gfx.enable)),
-      ("windowed", bool_to_string(cfg.gfx.windowed)),
-      ("framed", bool_to_string(cfg.gfx.framed)),
-      ("monitor", cfg.gfx.monitor.to_string()),
-      ("dpiAware", bool_to_string(cfg.gfx.dpi_aware)),
-    ],
-  );
+  if should_save("gpio") {
+    save_section(
+      &mut ini,
+      "gpio",
+      vec![
+        ("enable", bool_to_string(cfg.gpio.enable)),
+        ("sw1", cfg.gpio.sw1.to_string()),
+        ("sw2", cfg.gpio.sw2.to_string()),
+        ("dipsw1", bool_to_string(cfg.gpio.dipsw1)),
+        ("dipsw2", bool_to_string(cfg.gpio.dipsw2)),
+        ("dipsw3", bool_to_string(cfg.gpio.dipsw3)),
+        ("dipsw4", bool_to_string(cfg.gpio.dipsw4)),
+        ("dipsw5", bool_to_string(cfg.gpio.dipsw5)),
+        ("dipsw6", bool_to_string(cfg.gpio.dipsw6)),
+        ("dipsw7", bool_to_string(cfg.gpio.dipsw7)),
+        ("dipsw8", bool_to_string(cfg.gpio.dipsw8)),
+      ],
+    );
+  }
 
-  save_section(&mut ini, "hwmon", vec![("enable", bool_to_string(cfg.hwmon.enable))]);
+  if should_save("gfx") {
+    save_section(
+      &mut ini,
+      "gfx",
+      vec![
+        ("enable", bool_to_string(cfg.gfx.enable)),
+        ("windowed", bool_to_string(cfg.gfx.windowed)),
+        ("framed", bool_to_string(cfg.gfx.framed)),
+        ("monitor", cfg.gfx.monitor.to_string()),
+        ("dpiAware", bool_to_string(cfg.gfx.dpi_aware)),
+      ],
+    );
+  }
 
-  save_section(
-    &mut ini,
-    "jvs",
-    vec![
-      ("enable", bool_to_string(cfg.jvs.enable)),
-      ("foreground", bool_to_string(cfg.jvs.foreground)),
-    ],
-  );
+  if should_save("hwmon") {
+    save_section(&mut ini, "hwmon", vec![("enable", bool_to_string(cfg.hwmon.enable))]);
+  }
 
-  save_section(
-    &mut ini,
-    "io4",
-    vec![
-      ("enable", bool_to_string(cfg.io4.enable)),
-      ("foreground", bool_to_string(cfg.io4.foreground)),
-      ("test", cfg.io4.test.to_string()),
-      ("service", cfg.io4.service.to_string()),
-      ("coin", cfg.io4.coin.to_string()),
-    ],
-  );
+  if should_save("jvs") {
+    save_section(
+      &mut ini,
+      "jvs",
+      vec![
+        ("enable", bool_to_string(cfg.jvs.enable)),
+        ("foreground", bool_to_string(cfg.jvs.foreground)),
+      ],
+    );
+  }
 
-  save_section(
-    &mut ini,
-    "keychip",
-    vec![
-      ("enable", bool_to_string(cfg.keychip.enable)),
-      ("id", cfg.keychip.id.clone()),
-      ("gameId", cfg.keychip.game_id.clone()),
-      ("platformId", cfg.keychip.platform_id.clone()),
-      ("region", cfg.keychip.region.to_string()),
-      ("billingCa", cfg.keychip.billing_ca.clone()),
-      ("billingPub", cfg.keychip.billing_pub.clone()),
-      ("billingType", cfg.keychip.billing_type.to_string()),
-      ("systemFlag", cfg.keychip.system_flag.to_string()),
-      ("subnet", cfg.keychip.subnet.clone()),
-    ],
-  );
+  if should_save("io4") {
+    save_section(
+      &mut ini,
+      "io4",
+      vec![
+        ("enable", bool_to_string(cfg.io4.enable)),
+        ("foreground", bool_to_string(cfg.io4.foreground)),
+        ("test", cfg.io4.test.to_string()),
+        ("service", cfg.io4.service.to_string()),
+        ("coin", cfg.io4.coin.to_string()),
+      ],
+    );
+  }
 
-  save_section(
-    &mut ini,
-    "netenv",
-    vec![
-      ("enable", bool_to_string(cfg.netenv.enable)),
-      ("addrSuffix", cfg.netenv.addr_suffix.to_string()),
-      ("routerSuffix", cfg.netenv.router_suffix.to_string()),
-      ("macAddr", cfg.netenv.mac_addr.clone()),
-    ],
-  );
+  if should_save("keychip") {
+    save_section(
+      &mut ini,
+      "keychip",
+      vec![
+        ("enable", bool_to_string(cfg.keychip.enable)),
+        ("id", cfg.keychip.id.clone()),
+        ("gameId", cfg.keychip.game_id.clone()),
+        ("platformId", cfg.keychip.platform_id.clone()),
+        ("region", cfg.keychip.region.to_string()),
+        ("billingCa", cfg.keychip.billing_ca.clone()),
+        ("billingPub", cfg.keychip.billing_pub.clone()),
+        ("billingType", cfg.keychip.billing_type.to_string()),
+        ("systemFlag", cfg.keychip.system_flag.to_string()),
+        ("subnet", cfg.keychip.subnet.clone()),
+      ],
+    );
+  }
 
-  save_section(
-    &mut ini,
-    "pcbid",
-    vec![
-      ("enable", bool_to_string(cfg.pcbid.enable)),
-      ("serialNo", cfg.pcbid.serial_no.clone()),
-    ],
-  );
+  if should_save("netenv") {
+    save_section(
+      &mut ini,
+      "netenv",
+      vec![
+        ("enable", bool_to_string(cfg.netenv.enable)),
+        ("addrSuffix", cfg.netenv.addr_suffix.to_string()),
+        ("routerSuffix", cfg.netenv.router_suffix.to_string()),
+        ("macAddr", cfg.netenv.mac_addr.clone()),
+      ],
+    );
+  }
 
-  save_section(
-    &mut ini,
-    "sram",
-    vec![
-      ("enable", bool_to_string(cfg.sram.enable)),
-      ("path", cfg.sram.path.clone()),
-    ],
-  );
+  if should_save("pcbid") {
+    save_section(
+      &mut ini,
+      "pcbid",
+      vec![
+        ("enable", bool_to_string(cfg.pcbid.enable)),
+        ("serialNo", cfg.pcbid.serial_no.clone()),
+      ],
+    );
+  }
 
-  save_section(
-    &mut ini,
-    "vfs",
-    vec![
-      ("enable", bool_to_string(cfg.vfs.enable)),
-      ("amfs", cfg.vfs.amfs.clone()),
-      ("appdata", cfg.vfs.appdata.clone()),
-      ("option", cfg.vfs.option.clone()),
-    ],
-  );
+  if should_save("sram") {
+    save_section(
+      &mut ini,
+      "sram",
+      vec![
+        ("enable", bool_to_string(cfg.sram.enable)),
+        ("path", cfg.sram.path.clone()),
+      ],
+    );
+  }
 
-  save_section(
-    &mut ini,
-    "epay",
-    vec![
-      ("enable", bool_to_string(cfg.epay.enable)),
-      ("hook", bool_to_string(cfg.epay.hook)),
-    ],
-  );
+  if should_save("vfs") {
+    save_section(
+      &mut ini,
+      "vfs",
+      vec![
+        ("enable", bool_to_string(cfg.vfs.enable)),
+        ("amfs", cfg.vfs.amfs.clone()),
+        ("appdata", cfg.vfs.appdata.clone()),
+        ("option", cfg.vfs.option.clone()),
+      ],
+    );
+  }
 
-  save_section(
-    &mut ini,
-    "openssl",
-    vec![
-      ("enable", bool_to_string(cfg.openssl.enable)),
-      ("override", bool_to_string(cfg.openssl.override_flag)),
-    ],
-  );
+  if should_save("epay") {
+    save_section(
+      &mut ini,
+      "epay",
+      vec![
+        ("enable", bool_to_string(cfg.epay.enable)),
+        ("hook", bool_to_string(cfg.epay.hook)),
+      ],
+    );
+  }
+
+  if should_save("openssl") {
+    save_section(
+      &mut ini,
+      "openssl",
+      vec![
+        ("enable", bool_to_string(cfg.openssl.enable)),
+        ("override", bool_to_string(cfg.openssl.override_flag)),
+      ],
+    );
+  }
+
+  if should_save("system") {
+    save_section(
+      &mut ini,
+      "system",
+      vec![
+        ("enable", bool_to_string(cfg.system.enable)),
+        ("freeplay", bool_to_string(cfg.system.freeplay)),
+        ("dipsw1", bool_to_string(cfg.system.dipsw1)),
+        ("dipsw2", bool_to_string(cfg.system.dipsw2)),
+        ("dipsw3", bool_to_string(cfg.system.dipsw3)),
+      ],
+    );
+  }
+
+  if should_save("led15070") {
+    save_section(
+      &mut ini,
+      "led15070",
+      vec![("enable", bool_to_string(cfg.led15070.enable))],
+    );
+  }
+
+  if should_save("unity") {
+    save_section(
+      &mut ini,
+      "unity",
+      vec![
+        ("enable", bool_to_string(cfg.unity.enable)),
+        ("targetAssembly", cfg.unity.target_assembly.clone()),
+      ],
+    );
+  }
+
+  if should_save("mai2io") {
+    save_section(
+      &mut ini,
+      "mai2io",
+      vec![("path", cfg.mai2io.path.clone())],
+    );
+  }
+
+  if should_save("button") {
+    save_section(
+      &mut ini,
+      "button",
+      vec![
+        ("enable", bool_to_string(cfg.button.enable)),
+        ("p1Btn1", cfg.button.p1_btn1.to_string()),
+        ("p1Btn2", cfg.button.p1_btn2.to_string()),
+        ("p1Btn3", cfg.button.p1_btn3.to_string()),
+        ("p1Btn4", cfg.button.p1_btn4.to_string()),
+        ("p1Btn5", cfg.button.p1_btn5.to_string()),
+        ("p1Btn6", cfg.button.p1_btn6.to_string()),
+        ("p1Btn7", cfg.button.p1_btn7.to_string()),
+        ("p1Btn8", cfg.button.p1_btn8.to_string()),
+        ("p1Select", cfg.button.p1_select.to_string()),
+        ("p2Btn1", cfg.button.p2_btn1.to_string()),
+        ("p2Btn2", cfg.button.p2_btn2.to_string()),
+        ("p2Btn3", cfg.button.p2_btn3.to_string()),
+        ("p2Btn4", cfg.button.p2_btn4.to_string()),
+        ("p2Btn5", cfg.button.p2_btn5.to_string()),
+        ("p2Btn6", cfg.button.p2_btn6.to_string()),
+        ("p2Btn7", cfg.button.p2_btn7.to_string()),
+        ("p2Btn8", cfg.button.p2_btn8.to_string()),
+        ("p2Select", cfg.button.p2_select.to_string()),
+      ],
+    );
+  }
+
+  if should_save("touch") {
+    save_section(
+      &mut ini,
+      "touch",
+      vec![
+        ("p1Enable", bool_to_string(cfg.touch.p1_enable)),
+        ("p2Enable", bool_to_string(cfg.touch.p2_enable)),
+      ],
+    );
+  }
 
   ini
     .write(path.to_string_lossy().as_ref())

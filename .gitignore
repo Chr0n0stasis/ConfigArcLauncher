@@ -11,3 +11,5 @@ yarn-debug.log*
 src-tauri/target
 src-tauri/.cargo
 src-tauri/Cargo.lock
+
+.ini
