@@ -1,7 +1,6 @@
 .option-field {
   display: grid;
   gap: var(--spacing-xs);
-  margin-bottom: var(--spacing-md);
 }
 
 .option-header {
@@ -27,11 +26,35 @@
 .option-input {
   width: 100%;
   box-sizing: border-box;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.option-input:focus {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+}
+
+/* Hide default number input spinners */
+.option-input::-webkit-outer-spin-button,
+.option-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.option-input[type=number] {
+  -moz-appearance: textfield;
 }
 
 .option-checkbox {
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   accent-color: var(--accent-primary);
   cursor: pointer;
 }
@@ -39,26 +62,49 @@
 .section-accordion {
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  background: var(--bg-secondary);
-  margin-bottom: var(--spacing-md);
+  background: transparent;
   overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .section-summary {
   cursor: pointer;
   font-weight: 600;
   padding: var(--spacing-md);
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--bg-secondary);
   transition: background 0.2s;
   color: var(--text-primary);
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-summary::after {
+  content: '+';
+  font-size: 32px;
+  font-weight: 250;
+  line-height: 1;
+  color: var(--text-secondary);
+  transition: transform 0.2s;
+}
+
+details[open] .section-summary::after {
+  transform: rotate(45deg);
+}
+
+.section-summary::-webkit-details-marker {
+  display: none;
 }
 
 .section-summary:hover {
-  background: rgba(255, 255, 255, 0.05);
+  filter: brightness(1.1);
 }
 
 .section-content {
   padding: var(--spacing-md);
   border-top: 1px solid var(--border-color);
+  background: rgba(0, 0, 0, 0.04);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 

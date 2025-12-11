@@ -224,7 +224,7 @@ function SegatoolsEditor({ config, onChange }: Props) {
     <div style={{ display: 'grid', gap: 10 }}>
       {sections.map((section) => (
         <SectionAccordion key={section.key as string} title={section.title}>
-          <div style={{ display: 'grid', gap: 8 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px 24px', alignItems: 'start' }}>
             {section.fields.map((field) => (
               <OptionField
                 key={`${section.key}-${field.name}`}

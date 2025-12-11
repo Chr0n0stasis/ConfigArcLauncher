@@ -1,14 +1,16 @@
 .layout-shell {
   display: grid;
   grid-template-columns: 260px 1fr;
-  min-height: 100vh;
+  height: 100vh;
+  overflow: hidden;
   background: var(--bg-primary);
 }
 
 .layout-main {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
+  height: 100%;
+  overflow: hidden;
   background: var(--bg-primary);
   position: relative;
 }
@@ -47,6 +49,7 @@
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
 }
 
 .layout-sidebar-title {
