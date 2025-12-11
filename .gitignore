@@ -1,0 +1,13 @@
+node_modules
+dist
+dist-ssr
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+.vscode
+.DS_Store
+.idea
+src-tauri/target
+src-tauri/.cargo
+src-tauri/Cargo.lock

@@ -1,0 +1,126 @@
+import { useEffect, useMemo, useState } from 'react';
+import SegatoolsEditor from '../components/config/SegatoolsEditor';
+import { useConfigState, useProfilesState } from '../state/configStore';
+import { ConfigProfile } from '../types/games';
+import { SegatoolsConfig } from '../types/config';
+
+function ConfigEditorPage() {
+  const { config, setConfig, loading, saving, error, reload, save, resetToDefaults } = useConfigState();
+  const { profiles, reload: reloadProfiles, saveProfile, deleteProfile, loadProfile } = useProfilesState();
+  const [selectedProfileId, setSelectedProfileId] = useState<string>('');
+
+  useEffect(() => {
+    reloadProfiles();
+  }, [reloadProfiles]);
+
+  useEffect(() => {
+    if (!selectedProfileId && profiles.length) {
+      setSelectedProfileId(profiles[0].id);
+    }
+  }, [profiles, selectedProfileId]);
+
+  useEffect(() => {
+    if (selectedProfileId) {
+      loadProfile(selectedProfileId)
+        .then((p) => p && setConfig({ ...p.segatools }))
+        .catch((err) => console.error(err));
+    }
+  }, [selectedProfileId, loadProfile, setConfig]);
+
+  const profileOptions = useMemo(() => profiles.map((p) => ({ value: p.id, label: p.name })), [profiles]);
+
+  const handleProfileSave = async () => {
+    if (!config) return;
+    let profile: ConfigProfile | undefined = profiles.find((p) => p.id === selectedProfileId);
+    if (!profile) {
+      const name = prompt('Profile name', 'New Profile');
+      if (!name) return;
+      profile = {
+        id: crypto.randomUUID ? crypto.randomUUID() : `profile-${Date.now()}`,
+        name,
+        description: '',
+        segatools: config,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
+    } else {
+      profile = { ...profile, segatools: config, updated_at: new Date().toISOString() };
+    }
+    await saveProfile(profile);
+    setSelectedProfileId(profile.id);
+    reloadProfiles();
+  };
+
+  const handleProfileDelete = async () => {
+    if (!selectedProfileId) return;
+    await deleteProfile(selectedProfileId);
+    setSelectedProfileId('');
+    reloadProfiles();
+    reload();
+  };
+
+  const handleCreateProfile = async () => {
+    if (!config) return;
+    const name = prompt('New profile name');
+    if (!name) return;
+    const profile: ConfigProfile = {
+      id: crypto.randomUUID ? crypto.randomUUID() : `profile-${Date.now()}`,
+      name,
+      description: '',
+      segatools: config,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    await saveProfile(profile);
+    setSelectedProfileId(profile.id);
+    reloadProfiles();
+  };
+
+  const handleProfileLoad = async (id: string) => {
+    setSelectedProfileId(id);
+    if (!id) {
+      await reload();
+      return;
+    }
+    const prof = await loadProfile(id);
+    setConfig({ ...prof.segatools });
+  };
+
+  if (loading || !config) {
+    return <p>Loading config...</p>;
+  }
+
+  return (
+    <div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'center', marginBottom: 12 }}>
+        <div>
+          <h2 style={{ margin: '0 0 4px 0' }}>Config Editor</h2>
+          <small>Edit segatools.ini values and manage profiles.</small>
+        </div>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <select value={selectedProfileId} onChange={(e) => handleProfileLoad(e.target.value)}>
+            <option value="">Active file (segatools.ini)</option>
+            {profileOptions.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+          <button onClick={handleCreateProfile}>New Profile</button>
+          <button onClick={handleProfileSave}>Save Profile</button>
+          <button onClick={handleProfileDelete} disabled={!selectedProfileId}>Delete Profile</button>
+        </div>
+      </div>
+      {error && <p style={{ color: '#f87171' }}>{error}</p>}
+      <SegatoolsEditor
+        config={config}
+        onChange={(next: SegatoolsConfig) => setConfig(next)}
+      />
+      <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
+        <button onClick={() => save(config)} disabled={saving}>Save Config</button>
+        <button onClick={resetToDefaults}>Reset to Defaults</button>
+        <button onClick={reload}>Reload from Disk</button>
+      </div>
+    </div>
+  );
+}
+
+export default ConfigEditorPage;

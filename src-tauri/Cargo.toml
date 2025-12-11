@@ -1,0 +1,14 @@
+[package]
+name = "configarc-launcher"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "1.0"
+configparser = "1.0.0"
+tauri = { version = "=2.9.5", features = [] }
+
+[build-dependencies]
+tauri-build = { version = "=2.5.3", features = [] }

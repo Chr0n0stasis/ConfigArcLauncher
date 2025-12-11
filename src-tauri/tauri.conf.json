@@ -1,0 +1,22 @@
+{
+  "productName": "ConfigArc Launcher",
+  "version": "0.1.0",
+  "identifier": "com.configarc.launcher",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "ConfigArc Launcher",
+        "width": 1200,
+        "height": 800,
+        "resizable": true
+      }
+    ]
+  }
+}
