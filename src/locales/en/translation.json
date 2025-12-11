@@ -77,6 +77,12 @@
       "system": "System",
       "light": "Light",
       "dark": "Dark"
+    },
+    "language": "Language",
+    "lang": {
+      "system": "System",
+      "en": "English",
+      "zh": "Chinese"
     }
   },
   "segatools": {
