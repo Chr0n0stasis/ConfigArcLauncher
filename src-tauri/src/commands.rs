@@ -6,6 +6,81 @@ use crate::config::{
 };
 use crate::games::{launcher::launch_game, model::Game, store};
 use tauri::command;
+use std::path::Path;
+use std::process::Command;
+use std::time::{SystemTime, UNIX_EPOCH};
+
+fn scan_game_folder_logic(path: &str) -> Result<Game, String> {
+    let dir = Path::new(path);
+    if !dir.exists() || !dir.is_dir() {
+        return Err("Invalid directory".to_string());
+    }
+
+    let mut game = Game {
+        id: SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_millis().to_string(),
+        name: "".to_string(),
+        executable_path: "".to_string(),
+        working_dir: Some(path.to_string()),
+        launch_args: vec![],
+        enabled: true,
+        tags: vec![],
+    };
+
+    let join_path = |p: &str| dir.join(p).to_str().unwrap_or("").to_string();
+    let inject_path = join_path("inject.exe");
+
+    if dir.join("Sinmai.exe").exists() {
+        game.name = "Sinmai".to_string();
+        game.executable_path = join_path("Sinmai.exe");
+        game.launch_args = vec![
+            "-screen-fullscreen".into(), "0".into(),
+            "-popupwindow".into(),
+            "-screen-width".into(), "2160".into(),
+            "-screen-height".into(), "1920".into(),
+            "-silent-crashes".into()
+        ];
+    } else if dir.join("chusanApp.exe").exists() {
+        game.name = "Chunithm".to_string();
+        game.executable_path = join_path("chusanApp.exe");
+        game.launch_args = vec![
+            "-screen-fullscreen".into(), "0".into(),
+            "-popupwindow".into(),
+            "-screen-width".into(), "1080".into(),
+            "-screen-height".into(), "1920".into()
+        ];
+    } else if dir.join("mu3.exe").exists() {
+        game.name = "Ongeki".to_string();
+        game.executable_path = join_path("mu3.exe");
+        game.launch_args = vec![
+            "-screen-fullscreen".into(), "0".into(),
+            "-popupwindow".into(),
+            "-screen-width".into(), "1080".into(),
+            "-screen-height".into(), "1920".into()
+        ];
+    } else {
+        return Err("No supported game executable found (Sinmai.exe, chusanApp.exe, mu3.exe)".to_string());
+    }
+
+    Ok(game)
+}
+
+#[command]
+pub fn pick_game_folder_cmd() -> Result<Game, String> {
+    let ps_script = "Add-Type -AssemblyName System.Windows.Forms; $f = New-Object System.Windows.Forms.FolderBrowserDialog; if ($f.ShowDialog() -eq 'OK') { Write-Output $f.SelectedPath }";
+    
+    let output = Command::new("powershell")
+        .args(&["-NoProfile", "-Command", ps_script])
+        .output()
+        .map_err(|e| e.to_string())?;
+        
+    let path = String::from_utf8_lossy(&output.stdout).trim().to_string();
+    
+    if path.is_empty() {
+        return Err("No folder selected".to_string());
+    }
+    
+    scan_game_folder_logic(&path)
+}
 
 #[command]
 pub fn get_segatoools_config() -> Result<SegatoolsConfig, String> {

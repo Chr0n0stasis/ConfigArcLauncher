@@ -19,6 +19,7 @@ fn main() {
             save_game_cmd,
             delete_game_cmd,
             launch_game_cmd,
+            pick_game_folder_cmd,
             default_segatoools_config_cmd,
             segatoools_path_cmd
         ])
