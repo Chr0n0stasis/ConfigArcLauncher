@@ -1,15 +1,37 @@
+# Node.js dependencies and build outputs
 node_modules
 dist
 dist-ssr
+
+# Logs
 *.log
 npm-debug.log*
 pnpm-debug.log*
 yarn-debug.log*
+
+# IDE and Editor settings
 .vscode
-.DS_Store
 .idea
+.DS_Store
+*.swp
+*.swo
+
+# OS generated files
+Thumbs.db
+
+# Rust / Tauri build artifacts
 src-tauri/target
 src-tauri/.cargo
+
+# Lock files
 src-tauri/Cargo.lock
 
-.ini
+# Tauri generated schemas and files
+src-tauri/gen/
+
+# Local configuration, secrets, and runtime state
+# These contain local paths or sensitive info and should not be shared
+*.ini
+src-tauri/configarc_games.json
+src-tauri/configarc_active_game.json
+
