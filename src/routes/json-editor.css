@@ -1,0 +1,166 @@
+.json-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.json-header-game {
+  color: var(--text-muted);
+  font-weight: 400;
+  margin-left: 6px;
+}
+
+.json-header-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.json-error {
+  color: var(--danger);
+  margin: 0 0 8px 0;
+}
+
+.json-editor-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  gap: var(--spacing-md);
+  align-items: flex-start;
+}
+
+@media (max-width: 960px) {
+  .json-editor-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.json-editor-sidebar {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  padding: 12px;
+}
+
+.json-sidebar-title {
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.json-file-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.json-file-button {
+  width: 100%;
+  text-align: left;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.json-file-button:hover {
+  border-color: var(--accent-primary);
+}
+
+.json-file-button.active {
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-glow);
+  background: var(--bg-tertiary);
+}
+
+.json-file-name {
+  font-weight: 600;
+}
+
+.json-file-kind {
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+.json-editor-panel {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  background: var(--bg-secondary);
+  padding: 16px;
+  min-height: 320px;
+}
+
+.json-notice {
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.25);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.json-section {
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  margin-bottom: 12px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.json-section h4 {
+  margin: 0 0 8px 0;
+  letter-spacing: 0.2px;
+  text-transform: lowercase;
+}
+
+.json-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.json-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+.json-field input,
+.json-field textarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+}
+
+.json-field input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.json-field textarea {
+  min-height: 120px;
+  font-family: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+  resize: vertical;
+}
+
+.json-field-full {
+  grid-column: 1 / -1;
+}
+
+.json-muted {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+.json-raw-editor textarea {
+  min-height: 420px;
+}

@@ -7,6 +7,7 @@ pub mod paths;
 pub mod profiles;
 pub mod segatools;
 pub mod templates;
+pub mod json_configs;
 
 pub use segatools::SegatoolsConfig;
 

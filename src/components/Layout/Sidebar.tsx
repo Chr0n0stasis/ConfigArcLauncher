@@ -20,6 +20,12 @@ function Sidebar() {
         {t('nav.config')}
       </NavLink>
       <NavLink 
+        to="/json" 
+        className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+      >
+        {t('nav.json')}
+      </NavLink>
+      <NavLink 
         to="/settings" 
         className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
       >

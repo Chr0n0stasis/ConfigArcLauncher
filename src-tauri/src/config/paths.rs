@@ -26,7 +26,7 @@ pub fn set_active_game_id(id: &str) -> Result<(), ConfigError> {
   Ok(())
 }
 
-fn resolve_active_game_dir() -> Result<PathBuf, ConfigError> {
+pub fn active_game_dir() -> Result<PathBuf, ConfigError> {
   let active = get_active_game_id()?
     .ok_or_else(|| ConfigError::NotFound("No active game selected".to_string()))?;
   let games = store::list_games().map_err(|e| ConfigError::Parse(e.to_string()))?;
@@ -39,7 +39,7 @@ fn resolve_active_game_dir() -> Result<PathBuf, ConfigError> {
 }
 
 pub fn segatoools_path_for_active() -> Result<PathBuf, ConfigError> {
-  let dir = resolve_active_game_dir()?;
+  let dir = active_game_dir()?;
   let custom = env::var("SEGATOOLS_CONFIG_PATH").ok();
   if let Some(p) = custom {
     return Ok(PathBuf::from(p));
@@ -48,7 +48,7 @@ pub fn segatoools_path_for_active() -> Result<PathBuf, ConfigError> {
 }
 
 pub fn profiles_dir_for_active() -> Result<PathBuf, ConfigError> {
-  let dir = resolve_active_game_dir()?;
+  let dir = active_game_dir()?;
   Ok(dir.join("Segatools_Config"))
 }
 

@@ -19,7 +19,8 @@
   },
   "nav": {
     "games": "游戏",
-    "config": "配置编辑器",
+    "config": "INI 编辑器",
+    "json": "JSON 编辑器",
     "settings": "设置"
   },
   "games": {
@@ -46,7 +47,7 @@
     }
   },
   "config": {
-    "title": "配置编辑器",
+    "title": "INI 编辑器",
     "subtitle": "编辑 segatools.ini 值并管理配置文件。",
     "noActiveGame": "未选择活跃游戏",
     "activateFirst": "请先在游戏列表激活一个游戏后再编辑配置。",
@@ -69,6 +70,22 @@
     "createProfileMessage": "输入新配置的名称:",
     "deleteProfileTitle": "删除配置",
     "deleteProfileMessage": "确定要删除此配置吗？此操作无法撤销。"
+  },
+  "json": {
+    "title": "JSON 编辑器",
+    "subtitle": "编辑当前游戏目录下的 config_xxxx.json。",
+    "noActiveGame": "未选择活跃游戏",
+    "activateFirst": "请先在游戏列表中激活游戏后再编辑 JSON 配置。",
+    "loadingList": "正在扫描 config_xxxx.json 文件...",
+    "noneFound": "游戏目录下未找到 config_xxxx.json。",
+    "reloadFiles": "刷新文件",
+    "reloadFile": "重新加载",
+    "save": "保存 JSON",
+    "saved": "JSON 已保存",
+    "invalidJson": "JSON 格式错误: {{error}}",
+    "commonNotice": "common 只开放 credit、allnet_auth、allnet_accounting、aime、emoney。",
+    "rawEditorLabel": "原始 JSON",
+    "fileList": "配置文件"
   },
   "settings": {
     "title": "设置",

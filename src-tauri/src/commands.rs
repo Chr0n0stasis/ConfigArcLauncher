@@ -6,10 +6,12 @@ use crate::config::{
     profiles::{delete_profile, list_profiles, load_profile, save_profile, ConfigProfile},
     segatools::SegatoolsConfig,
     templates,
+    json_configs::{JsonConfigFile, list_json_configs_for_active, load_json_config_for_active, save_json_config_for_active},
     {default_segatoools_config, load_segatoools_config, load_segatoools_config_from_string, save_segatoools_config as persist_segatoools_config},
 };
 use crate::games::{launcher::launch_game, model::Game, store};
 use tauri::command;
+use serde_json::Value;
 use std::path::Path;
 use std::process::Command;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -236,4 +238,19 @@ pub fn set_active_game_cmd(id: String) -> Result<(), String> {
     }
 
     Ok(())
+}
+
+#[command]
+pub fn list_json_configs_cmd() -> Result<Vec<JsonConfigFile>, String> {
+    list_json_configs_for_active().map_err(|e| e.to_string())
+}
+
+#[command]
+pub fn load_json_config_cmd(name: String) -> Result<Value, String> {
+    load_json_config_for_active(&name).map_err(|e| e.to_string())
+}
+
+#[command]
+pub fn save_json_config_cmd(name: String, content: Value) -> Result<(), String> {
+    save_json_config_for_active(&name, &content).map_err(|e| e.to_string())
 }

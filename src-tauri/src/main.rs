@@ -23,7 +23,10 @@ fn main() {
             default_segatoools_config_cmd,
             segatoools_path_cmd,
             get_active_game_cmd,
-            set_active_game_cmd
+            set_active_game_cmd,
+            list_json_configs_cmd,
+            load_json_config_cmd,
+            save_json_config_cmd
         ])
         .setup(|app| {
             app.handle();
