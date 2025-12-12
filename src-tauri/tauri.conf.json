@@ -18,5 +18,9 @@
         "resizable": true
       }
     ]
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["nsis"]
   }
 }
