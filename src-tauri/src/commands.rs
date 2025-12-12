@@ -5,7 +5,8 @@ use crate::config::{
     },
     profiles::{delete_profile, list_profiles, load_profile, save_profile, ConfigProfile},
     segatools::SegatoolsConfig,
-    {default_segatoools_config, load_segatoools_config, save_segatoools_config as persist_segatoools_config},
+    templates,
+    {default_segatoools_config, load_segatoools_config, load_segatoools_config_from_string, save_segatoools_config as persist_segatoools_config},
 };
 use crate::games::{launcher::launch_game, model::Game, store};
 use tauri::command;
@@ -172,6 +173,24 @@ pub fn launch_game_cmd(id: String, profile_id: Option<String>) -> Result<(), Str
 
 #[command]
 pub fn default_segatoools_config_cmd() -> Result<SegatoolsConfig, String> {
+    // Try to load game-specific default if an active game is selected
+    if let Ok(Some(id)) = get_active_game_id() {
+        if let Ok(games) = store::list_games() {
+            if let Some(game) = games.iter().find(|g| g.id == id) {
+                let content = match game.name.as_str() {
+                    "Chunithm" => Some(templates::CHUSAN_TEMPLATE),
+                    "Sinmai" => Some(templates::MAI2_TEMPLATE),
+                    "Ongeki" => Some(templates::MU3_TEMPLATE),
+                    _ => None
+                };
+
+                if let Some(ini_content) = content {
+                    return load_segatoools_config_from_string(ini_content).map_err(|e| e.to_string());
+                }
+            }
+        }
+    }
+
     Ok(default_segatoools_config())
 }
 

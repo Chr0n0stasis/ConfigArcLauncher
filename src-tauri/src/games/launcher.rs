@@ -20,37 +20,53 @@ pub fn launch_game(game: &Game) -> Result<(), GameError> {
   };
 
   let inject_path = working_dir.join("inject.exe");
+  let inject_x86_path = working_dir.join("inject_x86.exe");
   
   // Check if we should use inject (Segatools style)
-  if inject_path.exists() {
+  if inject_path.exists() || inject_x86_path.exists() {
     let exe_name = exe_path.file_name().unwrap_or_default().to_string_lossy().to_string();
-    let (hook_dll, target_name) = match exe_name.as_str() {
-      "Sinmai.exe" => ("mai2hook.dll", "sinmai"),
-      "chusanApp.exe" => ("chuhook.dll", "chusanApp"),
-      "mu3.exe" => ("mu3hook.dll", "mu3"),
-      _ => ("", "")
-    };
+    
+    let mut batch_content = String::new();
+    let mut handled = false;
 
-    if !hook_dll.is_empty() {
-      // Create a batch script to handle the complex launch sequence
-      let amdaemon_path = working_dir.join("amdaemon.exe");
-      let has_amdaemon = amdaemon_path.exists();
-      
-      let mut batch_content = String::from("@echo off\r\n");
+    if exe_name == "chusanApp.exe" {
+      batch_content.push_str("@echo off\r\n");
       batch_content.push_str("cd /d \"%~dp0\"\r\n");
+      batch_content.push_str("start \"AM Daemon\" /min inject_x64 -d -k chusanhook_x64.dll amdaemon.exe -c config_common.json config_server.json config_client.json config_cvt.json config_sp.json config_hook.json\r\n");
       
-      if has_amdaemon {
-        batch_content.push_str(&format!("start \"AM Daemon\" /min inject -d -k {} amdaemon.exe -f -c config_common.json config_server.json config_client.json\r\n", hook_dll));
-      }
-      
-      // Construct game args string
       let args_str = game.launch_args.join(" ");
-      batch_content.push_str(&format!("inject -d -k {} {} {}\r\n", hook_dll, target_name, args_str));
-      
-      if has_amdaemon {
-        batch_content.push_str("taskkill /f /im amdaemon.exe > nul 2>&1\r\n");
-      }
+      batch_content.push_str(&format!("inject_x86 -d -k chusanhook_x86.dll chusanApp.exe {}\r\n", args_str));
+      batch_content.push_str("taskkill /f /im amdaemon.exe > nul 2>&1\r\n");
+      handled = true;
+    } else {
+      let (hook_dll, target_name) = match exe_name.as_str() {
+        "Sinmai.exe" => ("mai2hook.dll", "sinmai"),
+        "mu3.exe" => ("mu3hook.dll", "mu3"),
+        _ => ("", "")
+      };
 
+      if !hook_dll.is_empty() {
+        let amdaemon_path = working_dir.join("amdaemon.exe");
+        let has_amdaemon = amdaemon_path.exists();
+        
+        batch_content.push_str("@echo off\r\n");
+        batch_content.push_str("cd /d \"%~dp0\"\r\n");
+        
+        if has_amdaemon {
+          batch_content.push_str(&format!("start \"AM Daemon\" /min inject -d -k {} amdaemon.exe -f -c config_common.json config_server.json config_client.json\r\n", hook_dll));
+        }
+        
+        let args_str = game.launch_args.join(" ");
+        batch_content.push_str(&format!("inject -d -k {} {} {}\r\n", hook_dll, target_name, args_str));
+        
+        if has_amdaemon {
+          batch_content.push_str("taskkill /f /im amdaemon.exe > nul 2>&1\r\n");
+        }
+        handled = true;
+      }
+    }
+
+    if handled {
       let batch_path = working_dir.join("launch_temp.bat");
       fs::write(&batch_path, batch_content).map_err(|e| GameError::Launch(format!("Failed to write batch file: {}", e)))?;
 
@@ -59,8 +75,6 @@ pub fn launch_game(game: &Game) -> Result<(), GameError> {
       cmd.current_dir(working_dir);
       cmd.creation_flags(CREATE_NEW_CONSOLE);
       
-      // We spawn it. The batch file will handle the waiting for game process because 'inject' blocks until the injected process exits?
-      // Actually 'inject' usually blocks.
       cmd.spawn().map_err(|e| GameError::Launch(e.to_string()))?;
       
       return Ok(());
