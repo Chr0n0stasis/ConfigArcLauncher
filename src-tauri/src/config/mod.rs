@@ -175,9 +175,11 @@ fn parse_line_key(line: &str) -> Option<(String, bool)> {
     None
 }
 
-fn save_section(writer: &mut dyn ConfigWriter, name: &str, data: Vec<(&str, String)>) {
+fn save_section(writer: &mut dyn ConfigWriter, name: &str, data: Vec<(&str, String)>, commented_keys: &[String]) {
   for (k, v) in data {
-    let mut should_skip = v.is_empty();
+    let full_key = format!("{}.{}", name, k);
+    let is_commented = commented_keys.contains(&full_key);
+    let mut should_skip = v.is_empty() || is_commented;
 
     if !should_skip && v == "0" {
       if name == "slider" && k != "enable" {
@@ -207,18 +209,18 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
     cfg.present_sections.contains(&name.to_lowercase())
   };
 
+  let mut save_helper = |name: &str, data: Vec<(&str, String)>| {
+      save_section(writer, name, data, &cfg.commented_keys);
+  };
+
   if should_save("aimeio") {
-    save_section(
-      writer,
-      "aimeio",
+    save_helper("aimeio",
       vec![("path", cfg.aimeio.path.clone())],
     );
   }
 
   if should_save("aime") {
-    save_section(
-      writer,
-      "aime",
+    save_helper("aime",
       vec![
         ("enable", bool_to_string(cfg.aime.enable)),
         ("portNo", cfg.aime.port_no.to_string()),
@@ -236,9 +238,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("vfd") {
-    save_section(
-      writer,
-      "vfd",
+    save_helper("vfd",
       vec![
         ("enable", bool_to_string(cfg.vfd.enable)),
         ("portNo", cfg.vfd.port_no.to_string()),
@@ -248,13 +248,11 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("amvideo") {
-    save_section(writer, "amvideo", vec![("enable", bool_to_string(cfg.amvideo.enable))]);
+    save_helper("amvideo", vec![("enable", bool_to_string(cfg.amvideo.enable))]);
   }
 
   if should_save("clock") {
-    save_section(
-      writer,
-      "clock",
+    save_helper("clock",
       vec![
         ("timezone", bool_to_string(cfg.clock.timezone)),
         ("timewarp", bool_to_string(cfg.clock.timewarp)),
@@ -264,9 +262,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("dns") {
-    save_section(
-      writer,
-      "dns",
+    save_helper("dns",
       vec![
         ("default", cfg.dns.default.clone()),
         ("title", cfg.dns.title.clone()),
@@ -283,9 +279,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("ds") {
-    save_section(
-      writer,
-      "ds",
+    save_helper("ds",
       vec![
         ("enable", bool_to_string(cfg.ds.enable)),
         ("region", cfg.ds.region.to_string()),
@@ -295,9 +289,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("eeprom") {
-    save_section(
-      writer,
-      "eeprom",
+    save_helper("eeprom",
       vec![
         ("enable", bool_to_string(cfg.eeprom.enable)),
         ("path", cfg.eeprom.path.clone()),
@@ -306,9 +298,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("gpio") {
-    save_section(
-      writer,
-      "gpio",
+    save_helper("gpio",
       vec![
         ("enable", bool_to_string(cfg.gpio.enable)),
         ("sw1", cfg.gpio.sw1.to_string()),
@@ -326,9 +316,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("gfx") {
-    save_section(
-      writer,
-      "gfx",
+    save_helper("gfx",
       vec![
         ("enable", bool_to_string(cfg.gfx.enable)),
         ("windowed", bool_to_string(cfg.gfx.windowed)),
@@ -340,13 +328,11 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("hwmon") {
-    save_section(writer, "hwmon", vec![("enable", bool_to_string(cfg.hwmon.enable))]);
+    save_helper("hwmon", vec![("enable", bool_to_string(cfg.hwmon.enable))]);
   }
 
   if should_save("jvs") {
-    save_section(
-      writer,
-      "jvs",
+    save_helper("jvs",
       vec![
         ("enable", bool_to_string(cfg.jvs.enable)),
         ("foreground", bool_to_string(cfg.jvs.foreground)),
@@ -355,9 +341,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("io4") {
-    save_section(
-      writer,
-      "io4",
+    save_helper("io4",
       vec![
         ("enable", bool_to_string(cfg.io4.enable)),
         ("foreground", bool_to_string(cfg.io4.foreground)),
@@ -369,9 +353,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("keychip") {
-    save_section(
-      writer,
-      "keychip",
+    save_helper("keychip",
       vec![
         ("enable", bool_to_string(cfg.keychip.enable)),
         ("id", cfg.keychip.id.clone()),
@@ -388,9 +370,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("netenv") {
-    save_section(
-      writer,
-      "netenv",
+    save_helper("netenv",
       vec![
         ("enable", bool_to_string(cfg.netenv.enable)),
         ("addrSuffix", cfg.netenv.addr_suffix.to_string()),
@@ -401,9 +381,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("pcbid") {
-    save_section(
-      writer,
-      "pcbid",
+    save_helper("pcbid",
       vec![
         ("enable", bool_to_string(cfg.pcbid.enable)),
         ("serialNo", cfg.pcbid.serial_no.clone()),
@@ -412,9 +390,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("sram") {
-    save_section(
-      writer,
-      "sram",
+    save_helper("sram",
       vec![
         ("enable", bool_to_string(cfg.sram.enable)),
         ("path", cfg.sram.path.clone()),
@@ -423,9 +399,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("vfs") {
-    save_section(
-      writer,
-      "vfs",
+    save_helper("vfs",
       vec![
         ("enable", bool_to_string(cfg.vfs.enable)),
         ("amfs", cfg.vfs.amfs.clone()),
@@ -436,9 +410,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("epay") {
-    save_section(
-      writer,
-      "epay",
+    save_helper("epay",
       vec![
         ("enable", bool_to_string(cfg.epay.enable)),
         ("hook", bool_to_string(cfg.epay.hook)),
@@ -447,9 +419,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("openssl") {
-    save_section(
-      writer,
-      "openssl",
+    save_helper("openssl",
       vec![
         ("enable", bool_to_string(cfg.openssl.enable)),
         ("override", bool_to_string(cfg.openssl.override_flag)),
@@ -458,9 +428,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("system") {
-    save_section(
-      writer,
-      "system",
+    save_helper("system",
       vec![
         ("enable", bool_to_string(cfg.system.enable)),
         ("freeplay", bool_to_string(cfg.system.freeplay)),
@@ -472,17 +440,13 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("led15070") {
-    save_section(
-      writer,
-      "led15070",
+    save_helper("led15070",
       vec![("enable", bool_to_string(cfg.led15070.enable))],
     );
   }
 
   if should_save("unity") {
-    save_section(
-      writer,
-      "unity",
+    save_helper("unity",
       vec![
         ("enable", bool_to_string(cfg.unity.enable)),
         ("targetAssembly", cfg.unity.target_assembly.clone()),
@@ -491,17 +455,13 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("mai2io") {
-    save_section(
-      writer,
-      "mai2io",
+    save_helper("mai2io",
       vec![("path", cfg.mai2io.path.clone())],
     );
   }
 
   if should_save("button") {
-    save_section(
-      writer,
-      "button",
+    save_helper("button",
       vec![
         ("enable", bool_to_string(cfg.button.enable)),
         ("p1Btn1", cfg.button.p1_btn1.to_string()),
@@ -527,9 +487,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("touch") {
-    save_section(
-      writer,
-      "touch",
+    save_helper("touch",
       vec![
         ("p1Enable", bool_to_string(cfg.touch.p1_enable)),
         ("p2Enable", bool_to_string(cfg.touch.p2_enable)),
@@ -538,17 +496,13 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("led15093") {
-    save_section(
-      writer,
-      "led15093",
+    save_helper("led15093",
       vec![("enable", bool_to_string(cfg.led15093.enable))],
     );
   }
 
   if should_save("led") {
-    save_section(
-      writer,
-      "led",
+    save_helper("led",
       vec![
         ("cabLedOutputPipe", bool_to_string(cfg.led.cab_led_output_pipe)),
         ("cabLedOutputSerial", bool_to_string(cfg.led.cab_led_output_serial)),
@@ -562,9 +516,7 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("chuniio") {
-    save_section(
-      writer,
-      "chuniio",
+    save_helper("chuniio",
       vec![
         ("path", cfg.chuniio.path.clone()),
         ("path32", cfg.chuniio.path32.clone()),
@@ -574,17 +526,13 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
   }
 
   if should_save("mu3io") {
-    save_section(
-      writer,
-      "mu3io",
+    save_helper("mu3io",
       vec![("path", cfg.mu3io.path.clone())],
     );
   }
 
   if should_save("io3") {
-    save_section(
-      writer,
-      "io3",
+    save_helper("io3",
       vec![
         ("test", cfg.io3.test.to_string()),
         ("service", cfg.io3.service.to_string()),
@@ -628,13 +576,11 @@ fn perform_save(writer: &mut dyn ConfigWriter, cfg: &SegatoolsConfig) {
     vec.push(("cell30", cfg.slider.cell30.to_string()));
     vec.push(("cell31", cfg.slider.cell31.to_string()));
     vec.push(("cell32", cfg.slider.cell32.to_string()));
-    save_section(writer, "slider", vec);
+    save_helper("slider", vec);
   }
 
   if should_save("ir") {
-    save_section(
-      writer,
-      "ir",
+    save_helper("ir",
       vec![
         ("ir1", cfg.ir.ir1.to_string()),
         ("ir2", cfg.ir.ir2.to_string()),
@@ -679,6 +625,51 @@ pub fn load_segatoools_config_from_string(content: &str) -> Result<SegatoolsConf
   // Populate present_sections
   if let Some(map) = parser.get_map() {
     cfg.present_sections = map.keys().map(|k| k.to_lowercase()).collect();
+  }
+
+  // Scan for commented keys
+  let mut current_section = String::new();
+  for line in content.lines() {
+      let trimmed = line.trim();
+      if trimmed.starts_with('[') && trimmed.ends_with(']') {
+          current_section = trimmed[1..trimmed.len()-1].trim().to_string();
+          continue;
+      }
+      
+      if let Some((key, is_commented)) = parse_line_key(line) {
+          if is_commented && !current_section.is_empty() {
+              cfg.commented_keys.push(format!("{}.{}", current_section, key));
+          }
+      }
+  }
+
+  // Special handling for slider and ir sections: treat missing keys as commented
+  if let Some(map) = parser.get_map() {
+      let slider_map = map.get("slider");
+      for i in 1..=32 {
+          let key = format!("cell{}", i);
+          let is_present = slider_map.map_or(false, |m| m.contains_key(&key));
+          
+          if !is_present {
+              let full_key = format!("slider.{}", key);
+              if !cfg.commented_keys.contains(&full_key) {
+                  cfg.commented_keys.push(full_key);
+              }
+          }
+      }
+
+      let ir_map = map.get("ir");
+      for i in 1..=6 {
+          let key = format!("ir{}", i);
+          let is_present = ir_map.map_or(false, |m| m.contains_key(&key));
+          
+          if !is_present {
+              let full_key = format!("ir.{}", key);
+              if !cfg.commented_keys.contains(&full_key) {
+                  cfg.commented_keys.push(full_key);
+              }
+          }
+      }
   }
 
   cfg.aimeio.path = read_string(&parser, "aimeio", "path", &cfg.aimeio.path);

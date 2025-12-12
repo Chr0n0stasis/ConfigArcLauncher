@@ -2,6 +2,7 @@ import './config.css';
 import { VK_MAP, mapKeyToVK } from '../../utils/vkCodes';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ConfirmDialog } from '../common/ConfirmDialog';
 
 type Props = {
   label: string;
@@ -12,13 +13,27 @@ type Props = {
   description?: string;
   required?: boolean;
   options?: { label: string; value: string }[];
+  commented?: boolean;
+  onUncomment?: () => void;
 };
 
-function OptionField({ label, type, value, onChange, helper, description, required, options }: Props) {
+function OptionField({ label, type, value, onChange, helper, description, required, options, commented, onUncomment }: Props) {
   const { t } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
+  const [showUncommentConfirm, setShowUncommentConfirm] = useState(false);
+
+  const handleCommentedClick = (e: React.MouseEvent) => {
+    if (commented) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (onUncomment) {
+        setShowUncommentConfirm(true);
+      }
+    }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (commented) return;
     if (!isRecording) return;
     e.preventDefault();
     e.stopPropagation();
@@ -32,16 +47,29 @@ function OptionField({ label, type, value, onChange, helper, description, requir
 
   const renderInput = () => {
     const isMissing = required && (value === '' || value === null || value === undefined);
-    const inputClass = `option-input ${isMissing ? 'missing-required' : ''}`;
+    const inputClass = `option-input ${isMissing ? 'missing-required' : ''} ${commented ? 'commented' : ''}`;
+    const commonProps = {
+        className: inputClass,
+        readOnly: commented,
+        disabled: commented && type === 'checkbox', // Checkbox needs disabled to prevent toggle, but we want to capture click?
+        // Actually for checkbox, if disabled, click might not bubble.
+        // Let's use onClickCapture on the wrapper or handle it carefully.
+        onClick: handleCommentedClick,
+        style: commented ? { opacity: 0.5, cursor: 'not-allowed' } : undefined
+    };
 
     if (type === 'checkbox') {
       return (
-        <input
-          type="checkbox"
-          className="option-checkbox"
-          checked={Boolean(value)}
-          onChange={(e) => onChange(e.target.checked)}
-        />
+        <div onClick={handleCommentedClick} style={{ display: 'inline-block' }}>
+            <input
+            type="checkbox"
+            className="option-checkbox"
+            checked={Boolean(value)}
+            onChange={(e) => !commented && onChange(e.target.checked)}
+            disabled={commented}
+            style={commented ? { opacity: 0.5, cursor: 'not-allowed', pointerEvents: 'none' } : undefined}
+            />
+        </div>
       );
     }
     if (type === 'key') {
@@ -52,13 +80,17 @@ function OptionField({ label, type, value, onChange, helper, description, requir
       return (
         <input
           type="text"
+          {...commonProps}
           className={`${inputClass} ${isRecording ? 'recording' : ''}`}
           value={displayValue}
-          readOnly
-          onClick={() => setIsRecording(true)}
+          readOnly={true} // Always readOnly for key input
+          onClick={(e) => {
+              handleCommentedClick(e);
+              if (!commented) setIsRecording(true);
+          }}
           onBlur={() => setIsRecording(false)}
           onKeyDown={handleKeyDown}
-          style={{ cursor: 'pointer', textAlign: 'center', caretColor: 'transparent' }}
+          style={{ ...commonProps.style, cursor: commented ? 'not-allowed' : 'pointer', textAlign: 'center', caretColor: 'transparent' }}
         />
       );
     }
@@ -66,31 +98,32 @@ function OptionField({ label, type, value, onChange, helper, description, requir
       return (
         <input
           type="number"
-          className={inputClass}
+          {...commonProps}
           value={value}
-          onChange={(e) => onChange(Number(e.target.value))}
+          onChange={(e) => !commented && onChange(Number(e.target.value))}
         />
       );
     }
     
     if (options && options.length > 0) {
       return (
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8 }} onClick={commented ? handleCommentedClick : undefined}>
           <input
             type="text"
-            className={inputClass}
+            {...commonProps}
             value={value ?? ''}
-            onChange={(e) => onChange(e.target.value)}
-            style={{ flex: 1 }}
+            onChange={(e) => !commented && onChange(e.target.value)}
+            style={{ ...commonProps.style, flex: 1 }}
           />
           <select
             className="option-input"
-            style={{ width: 'auto', paddingRight: 32, cursor: 'pointer' }}
+            style={{ width: 'auto', paddingRight: 32, cursor: commented ? 'not-allowed' : 'pointer', opacity: commented ? 0.5 : 1 }}
             onChange={(e) => {
               if (e.target.value) onChange(e.target.value);
               e.target.value = '';
             }}
             value=""
+            disabled={commented}
           >
             <option value="" disabled>Presets</option>
             {options.map((opt) => (
@@ -106,9 +139,9 @@ function OptionField({ label, type, value, onChange, helper, description, requir
     return (
       <input
         type="text"
-        className={inputClass}
+        {...commonProps}
         value={value ?? ''}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={(e) => !commented && onChange(e.target.value)}
       />
     );
   };
@@ -130,6 +163,17 @@ function OptionField({ label, type, value, onChange, helper, description, requir
           </div>
         )}
       </div>
+      {showUncommentConfirm && (
+        <ConfirmDialog
+          title={t('common.uncommentTitle', 'Uncomment Value')}
+          message={t('common.uncommentConfirm', 'This value is commented out. Do you want to uncomment it?')}
+          onConfirm={() => {
+            if (onUncomment) onUncomment();
+            setShowUncommentConfirm(false);
+          }}
+          onCancel={() => setShowUncommentConfirm(false)}
+        />
+      )}
     </label>
   );
 }

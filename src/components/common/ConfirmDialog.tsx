@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from './Modal';
+import './Dialog.css';
 
 type Props = {
   title: string;
@@ -24,21 +25,21 @@ export function ConfirmDialog({
   const { t } = useTranslation();
   return (
     <Modal title={title} onClose={onCancel} width={400}>
-      <p style={{ marginTop: 0, marginBottom: 24, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+      <p className="dialog-message">
         {message}
       </p>
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+      <div className="dialog-footer">
         <button 
           type="button" 
           onClick={onCancel}
-          style={{ background: 'transparent', border: '1px solid var(--border-color)' }}
+          className="dialog-btn dialog-btn-secondary"
         >
           {cancelLabel || t('common.cancel')}
         </button>
         <button 
           type="button" 
           onClick={onConfirm}
-          style={isDangerous ? { background: 'var(--danger)', borderColor: 'var(--danger)' } : {}}
+          className={`dialog-btn ${isDangerous ? 'dialog-btn-danger' : 'dialog-btn-primary'}`}
         >
           {confirmLabel || t('common.confirm')}
         </button>

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from './Modal';
+import './Dialog.css';
 
 type Props = {
   title: string;
@@ -44,24 +45,29 @@ export function PromptDialog({
   return (
     <Modal title={title} onClose={onCancel} width={400}>
       <form onSubmit={handleSubmit}>
-        {label && <label style={{ display: 'block', marginBottom: 8, fontWeight: 500 }}>{label}</label>}
+        {label && <label className="dialog-label">{label}</label>}
         <input
           ref={inputRef}
           type="text"
+          className="dialog-input"
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={placeholder}
-          style={{ width: '100%', marginBottom: 24, boxSizing: 'border-box' }}
         />
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12 }}>
+        <div className="dialog-footer">
           <button 
             type="button" 
             onClick={onCancel}
-            style={{ background: 'transparent', border: '1px solid var(--border-color)' }}
+            className="dialog-btn dialog-btn-secondary"
           >
             {cancelLabel || t('common.cancel')}
           </button>
-          <button type="submit" disabled={!value.trim()}>
+          <button 
+            type="submit" 
+            disabled={!value.trim()}
+            className="dialog-btn dialog-btn-primary"
+            style={!value.trim() ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+          >
             {confirmLabel || t('common.confirm')}
           </button>
         </div>

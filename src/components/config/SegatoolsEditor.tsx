@@ -381,19 +381,32 @@ function SegatoolsEditor({ config, onChange, activeGame }: Props) {
       {visibleSections.map((section) => (
         <SectionAccordion key={section.key as string} title={t([`segatools.${section.key}.sectionTitle`, `segatools.${section.key}.title`], section.key as string)}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px 24px', alignItems: 'start' }}>
-            {section.fields.map((field) => (
-              <OptionField
-                key={`${section.key}-${field.name}`}
-                label={t(`segatools.${section.key}.${field.name}.label`, field.name)}
-                type={field.type}
-                value={(config as any)[section.key][field.name]}
-                helper={field.helper}
-                description={t(`segatools.${section.key}.${field.name}.desc`, '')}
-                onChange={(val) => updateValue(section.key, field.name, val)}
-                required={field.required}
-                options={field.options}
-              />
-            ))}
+            {section.fields.map((field) => {
+              const fullKey = `${section.key}.${field.name}`;
+              const isCommented = config.commentedKeys?.includes(fullKey);
+              
+              return (
+                <OptionField
+                  key={`${section.key}-${field.name}`}
+                  label={t(`segatools.${section.key}.${field.name}.label`, field.name)}
+                  type={field.type}
+                  value={(config as any)[section.key][field.name]}
+                  helper={field.helper}
+                  description={t(`segatools.${section.key}.${field.name}.desc`, '')}
+                  onChange={(val) => updateValue(section.key, field.name, val)}
+                  required={field.required}
+                  options={field.options}
+                  commented={isCommented}
+                  onUncomment={() => {
+                    const newCommentedKeys = config.commentedKeys?.filter(k => k !== fullKey) || [];
+                    onChange({
+                      ...config,
+                      commentedKeys: newCommentedKeys
+                    });
+                  }}
+                />
+              );
+            })}
           </div>
         </SectionAccordion>
       ))}

@@ -38,12 +38,15 @@ pub struct SegatoolsConfig {
   pub ir: IrConfig,
   #[serde(default)]
   pub present_sections: Vec<String>,
+  #[serde(default)]
+  pub commented_keys: Vec<String>,
 }
 
 impl Default for SegatoolsConfig {
   fn default() -> Self {
     SegatoolsConfig {
       present_sections: vec![],
+      commented_keys: vec![],
       aimeio: AimeioConfig::default(),
       aime: AimeConfig::default(),
       vfd: VfdConfig::default(),

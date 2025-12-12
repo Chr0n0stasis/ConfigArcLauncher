@@ -1,4 +1,6 @@
 import React, { ReactNode } from 'react';
+import { createPortal } from 'react-dom';
+import './Modal.css';
 
 type Props = {
   title?: string;
@@ -8,38 +10,26 @@ type Props = {
 };
 
 export function Modal({ title, children, onClose, width = 480 }: Props) {
-  return (
+  return createPortal(
     <div 
-      style={{ 
-        position: 'fixed', 
-        inset: 0, 
-        background: 'rgba(0,0,0,0.55)', 
-        display: 'grid', 
-        placeItems: 'center', 
-        zIndex: 100, 
-        backdropFilter: 'blur(4px)' 
-      }}
+      className="modal-overlay"
       onClick={(e) => {
         if (e.target === e.currentTarget && onClose) onClose();
       }}
     >
-      <div style={{ 
-        background: 'var(--bg-secondary)', 
-        padding: 24, 
-        borderRadius: 12, 
-        width, 
-        maxWidth: '90vw',
-        border: '1px solid var(--border-color)', 
-        boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)' 
-      }}>
+      <div 
+        className="modal-content"
+        style={{ width }}
+      >
         {title && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <h3 style={{ margin: 0, fontSize: 20 }}>{title}</h3>
+          <div className="modal-header">
+            <h3 className="modal-title">{title}</h3>
             {onClose && (
               <button 
                 type="button" 
+                className="modal-close"
                 onClick={onClose}
-                style={{ background: 'transparent', border: 'none', fontSize: 24, cursor: 'pointer', padding: 0, color: 'var(--text-muted)' }}
+                aria-label="Close"
               >
                 &times;
               </button>
@@ -48,6 +38,7 @@ export function Modal({ title, children, onClose, width = 480 }: Props) {
         )}
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

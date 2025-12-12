@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal } from './Modal';
+import './Dialog.css';
 
 type Props = {
   title: string;
@@ -12,14 +13,14 @@ export function AlertDialog({ title, message, onClose }: Props) {
   const { t } = useTranslation();
   return (
     <Modal title={title} onClose={onClose} width={400}>
-      <p style={{ marginTop: 0, marginBottom: 24, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+      <p className="dialog-message">
         {message}
       </p>
-      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+      <div className="dialog-footer">
         <button 
           type="button" 
           onClick={onClose}
-          className="primary"
+          className="dialog-btn dialog-btn-primary"
         >
           {t('common.confirm')}
         </button>
