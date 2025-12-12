@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import GameList from '../components/games/GameList';
 import GameEditorDialog from '../components/games/GameEditorDialog';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
+import { AlertDialog } from '../components/common/AlertDialog';
 import { useGamesState } from '../state/gamesStore';
 import { useProfilesState } from '../state/configStore';
 import { Game } from '../types/games';
@@ -24,6 +25,7 @@ function GameListPage() {
   const { profiles } = useProfilesState();
   const [editing, setEditing] = useState<Game | null>(null);
   const [gameToDelete, setGameToDelete] = useState<string | null>(null);
+  const [alertMessage, setAlertMessage] = useState<string | null>(null);
 
   const sortedGames = useMemo(() => [...games].sort((a, b) => a.name.localeCompare(b.name)), [games]);
 
@@ -37,7 +39,7 @@ function GameListPage() {
       await launchGame(gameId, profileId);
     } catch (err) {
       console.error(err);
-      alert(t('games.launchFailed', { error: err }));
+      setAlertMessage(t('games.launchFailed', { error: err }));
     }
   };
 
@@ -87,6 +89,13 @@ function GameListPage() {
           onConfirm={handleConfirmDelete}
           onCancel={() => setGameToDelete(null)}
           isDangerous={true}
+        />
+      )}
+      {alertMessage && (
+        <AlertDialog
+          title={t('common.error')}
+          message={alertMessage}
+          onClose={() => setAlertMessage(null)}
         />
       )}
     </div>

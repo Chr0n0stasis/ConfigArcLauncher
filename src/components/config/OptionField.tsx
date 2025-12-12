@@ -10,9 +10,10 @@ type Props = {
   onChange: (val: any) => void;
   helper?: string;
   description?: string;
+  required?: boolean;
 };
 
-function OptionField({ label, type, value, onChange, helper, description }: Props) {
+function OptionField({ label, type, value, onChange, helper, description, required }: Props) {
   const { t } = useTranslation();
   const [isRecording, setIsRecording] = useState(false);
 
@@ -29,6 +30,9 @@ function OptionField({ label, type, value, onChange, helper, description }: Prop
   };
 
   const renderInput = () => {
+    const isMissing = required && (value === '' || value === null || value === undefined);
+    const inputClass = `option-input ${isMissing ? 'missing-required' : ''}`;
+
     if (type === 'checkbox') {
       return (
         <input
@@ -47,7 +51,7 @@ function OptionField({ label, type, value, onChange, helper, description }: Prop
       return (
         <input
           type="text"
-          className={`option-input ${isRecording ? 'recording' : ''}`}
+          className={`${inputClass} ${isRecording ? 'recording' : ''}`}
           value={displayValue}
           readOnly
           onClick={() => setIsRecording(true)}
@@ -61,7 +65,7 @@ function OptionField({ label, type, value, onChange, helper, description }: Prop
       return (
         <input
           type="number"
-          className="option-input"
+          className={inputClass}
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
         />
@@ -70,7 +74,7 @@ function OptionField({ label, type, value, onChange, helper, description }: Prop
     return (
       <input
         type="text"
-        className="option-input"
+        className={inputClass}
         value={value ?? ''}
         onChange={(e) => onChange(e.target.value)}
       />
@@ -80,7 +84,10 @@ function OptionField({ label, type, value, onChange, helper, description }: Prop
   return (
     <label className="option-field">
       <div className="option-header">
-        <span className="option-label">{label}</span>
+        <span className="option-label">
+          {label}
+          {required && <span style={{ color: '#ef4444', marginLeft: '4px' }} title="Required">*</span>}
+        </span>
         {helper && <small className="option-helper">{helper}</small>}
       </div>
       <div className="option-input-wrapper">

@@ -8,6 +8,7 @@ type FieldSpec = {
   name: string;
   type: 'text' | 'number' | 'checkbox' | 'key';
   helper?: string;
+  required?: boolean;
 };
 
 type SectionSpec = {
@@ -179,7 +180,7 @@ function getSections(gameName?: string): SectionSpec[] {
     key: 'keychip',
     fields: [
       { name: 'enable', type: 'checkbox' },
-      { name: 'id', type: 'text' },
+      { name: 'id', type: 'text', required: true },
       { name: 'gameId', type: 'text' },
       { name: 'platformId', type: 'text' },
       { name: 'region', type: 'number' },
@@ -217,9 +218,9 @@ function getSections(gameName?: string): SectionSpec[] {
     key: 'vfs',
     fields: [
       { name: 'enable', type: 'checkbox' },
-      { name: 'amfs', type: 'text' },
-      { name: 'appdata', type: 'text' },
-      { name: 'option', type: 'text' }
+      { name: 'amfs', type: 'text', required: true },
+      { name: 'appdata', type: 'text', required: true },
+      { name: 'option', type: 'text', required: true }
     ]
   },
   {
@@ -307,6 +308,7 @@ function SegatoolsEditor({ config, onChange, activeGame }: Props) {
                 helper={field.helper}
                 description={t(`segatools.${section.key}.${field.name}.desc`, '')}
                 onChange={(val) => updateValue(section.key, field.name, val)}
+                required={field.required}
               />
             ))}
           </div>

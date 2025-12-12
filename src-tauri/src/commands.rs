@@ -141,11 +141,30 @@ pub fn launch_game_cmd(id: String, profile_id: Option<String>) -> Result<(), Str
         .find(|g| g.id == id)
         .ok_or_else(|| "Game not found".to_string())?;
 
-    if let Some(pid) = profile_id.filter(|s| !s.is_empty()) {
+    let config_to_validate = if let Some(pid) = profile_id.filter(|s| !s.is_empty()) {
         let profile = load_profile(&pid).map_err(|e| e.to_string())?;
         let game_root = store::game_root_dir(&game).ok_or_else(|| "Game path missing".to_string())?;
         let seg_path = game_root.join("segatools.ini");
         persist_segatoools_config(&seg_path, &profile.segatools).map_err(|e| e.to_string())?;
+        profile.segatools
+    } else {
+        let game_root = store::game_root_dir(&game).ok_or_else(|| "Game path missing".to_string())?;
+        let seg_path = game_root.join("segatools.ini");
+        if seg_path.exists() {
+            load_segatoools_config(&seg_path).map_err(|e| e.to_string())?
+        } else {
+            return Err("segatools.ini not found. Please configure the game.".to_string());
+        }
+    };
+
+    let mut missing = Vec::new();
+    if config_to_validate.keychip.id.is_empty() { missing.push("Keychip ID"); }
+    if config_to_validate.vfs.amfs.is_empty() { missing.push("AMFS Path"); }
+    if config_to_validate.vfs.appdata.is_empty() { missing.push("APPDATA Path"); }
+    if config_to_validate.vfs.option.is_empty() { missing.push("OPTION Path"); }
+
+    if !missing.is_empty() {
+        return Err(format!("Missing required fields: {}. Please configure them in settings.", missing.join(", ")));
     }
 
     launch_game(&game).map_err(|e| e.to_string())

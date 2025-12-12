@@ -82,6 +82,27 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
+.option-input.missing-required {
+  border-color: rgba(239, 68, 68, 0.5);
+  background-color: rgba(239, 68, 68, 0.05);
+  animation: breathe-red 3s infinite ease-in-out;
+}
+
+@keyframes breathe-red {
+  0% {
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+  }
+}
+
 /* Hide default number input spinners */
 .option-input::-webkit-outer-spin-button,
 .option-input::-webkit-inner-spin-button {
