@@ -21,6 +21,7 @@ type Props = {
   config: SegatoolsConfig;
   onChange: (next: SegatoolsConfig) => void;
   activeGame?: Game;
+  trusted?: boolean;
 };
 
 function getSections(gameName?: string): SectionSpec[] {
@@ -338,9 +339,10 @@ function getSections(gameName?: string): SectionSpec[] {
 ];
 }
 
-function SegatoolsEditor({ config, onChange, activeGame }: Props) {
+function SegatoolsEditor({ config, onChange, activeGame, trusted = false }: Props) {
   const { t } = useTranslation();
   const sections = getSections(activeGame?.name);
+  const hasPresentSections = !!config.presentSections && config.presentSections.length > 0;
 
   const updateValue = (section: keyof SegatoolsConfig, field: string, value: any) => {
     // Ensure the section is marked as present when modified
@@ -360,18 +362,9 @@ function SegatoolsEditor({ config, onChange, activeGame }: Props) {
   };
 
   const visibleSections = sections.filter(section => {
-    // Always show these sections for specific games, even if missing in INI
-    if (activeGame?.name === 'Chunithm') {
-      if (['slider', 'ir', 'led', 'led15093', 'chuniio', 'io3'].includes(section.key as string)) return true;
-    }
-    if (activeGame?.name === 'Ongeki') {
-      if (['led', 'led15093', 'mu3io'].includes(section.key as string)) return true;
-    }
-
-    // If presentSections is available and has items, only show those sections.
-    // Otherwise (e.g. new file or legacy backend), show all sections.
-    if (config.presentSections && config.presentSections.length > 0) {
-      return config.presentSections.includes(section.key as string);
+    if (trusted) return true;
+    if (hasPresentSections) {
+      return config.presentSections?.includes(section.key as string);
     }
     return true;
   });

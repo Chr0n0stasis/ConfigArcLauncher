@@ -20,6 +20,7 @@
   "nav": {
     "games": "游戏",
     "config": "INI 编辑器",
+    "deploy": "部署 segatools",
     "json": "JSON 编辑器",
     "settings": "设置"
   },
@@ -69,7 +70,18 @@
     "createProfileTitle": "创建新配置",
     "createProfileMessage": "输入新配置的名称:",
     "deleteProfileTitle": "删除配置",
-    "deleteProfileMessage": "确定要删除此配置吗？此操作无法撤销。"
+    "deleteProfileMessage": "确定要删除此配置吗？此操作无法撤销。",
+    "trustChecking": "正在校验 segatools...",
+    "trustOk": "已通过可信校验",
+    "trustFailed": "未通过可信校验",
+    "trustRefresh": "重新校验",
+    "openDeploy": "前往部署",
+    "trustWarningTitle": "未通过可信校验",
+    "trustWarningMessage": "非开源可信版本的 segatools，建议更换。",
+    "trustReason": "原因：{{reason}}",
+    "trustMissing": "缺少 segatools",
+    "trustMissingTitle": "缺少 segatools",
+    "trustMissingMessage": "未找到 segatools 文件，请先部署可信版本。"
   },
   "json": {
     "title": "JSON 编辑器",
@@ -614,5 +626,36 @@
         "desc": "游戏之前运行的 .NET DLL 的路径。"
       }
     }
+  },
+  "deploy": {
+    "title": "部署 segatools",
+    "subtitle": "为当前游戏自动下载、验证并覆盖部署可信版本。",
+    "loading": "正在加载可信状态...",
+    "noActiveGame": "未选择游戏",
+    "activateFirst": "请先在游戏列表中激活一个游戏再部署 segatools。",
+    "trusted": "可信",
+    "untrusted": "未通过校验",
+    "buildId": "版本: {{build}}",
+    "currentGame": "当前游戏：",
+    "untrustedDetail": "检测到未通过校验的 segatools。",
+    "reason": "原因：{{reason}}",
+    "hashOk": "校验通过",
+    "hashMismatch": "哈希不匹配",
+    "noHashes": "没有可用的可信哈希。",
+    "deploy": "部署可信 segatools",
+    "deploying": "正在部署...",
+    "deployOk": "部署完成",
+    "deployUnknown": "部署完成，但状态未知",
+    "deployError": "部署失败：{{error}}",
+    "statusError": "获取可信状态失败：{{error}}",
+    "refresh": "刷新状态",
+    "rollback": "从备份回滚",
+    "rollingBack": "正在回滚...",
+    "rollbackOk": "回滚完成",
+    "rollbackError": "回滚失败：{{error}}",
+    "confirmTitle": "覆盖现有 segatools？",
+    "confirmMessage": "将备份并覆盖现有 segatools，共 {{count}} 个文件（示例：{{files}}）",
+    "missing": "缺失",
+    "missingDetail": "检测到缺少 segatools 文件。"
   }
 }

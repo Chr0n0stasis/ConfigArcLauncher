@@ -1,4 +1,3 @@
-use super::{default_segatoools_config, save_segatoools_config};
 use crate::error::ConfigError;
 use crate::games::store;
 use std::fs;
@@ -55,11 +54,9 @@ pub fn profiles_dir_for_active() -> Result<PathBuf, ConfigError> {
 pub fn ensure_default_segatoools_exists() -> Result<(), ConfigError> {
   let path = segatoools_path_for_active()?;
   if !path.exists() {
-    if let Some(parent) = path.parent() {
-      std::fs::create_dir_all(parent)?;
-    }
-    let cfg = default_segatoools_config();
-    save_segatoools_config(&path, &cfg)?;
+    return Err(ConfigError::NotFound(
+      "segatools.ini not found. Please deploy segatools first.".to_string(),
+    ));
   }
   Ok(())
 }

@@ -4,6 +4,7 @@ mod commands;
 mod config;
 mod error;
 mod games;
+mod trusted;
 
 use commands::*;
 fn main() {
@@ -26,7 +27,10 @@ fn main() {
             set_active_game_cmd,
             list_json_configs_cmd,
             load_json_config_cmd,
-            save_json_config_cmd
+            save_json_config_cmd,
+            segatools_trust_status_cmd,
+            deploy_segatoools_cmd,
+            rollback_segatoools_cmd
         ])
         .setup(|app| {
             app.handle();

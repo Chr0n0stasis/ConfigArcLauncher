@@ -4,6 +4,7 @@ import ConfigEditorPage from './routes/ConfigEditorPage';
 import SettingsPage from './routes/SettingsPage';
 import JsonEditorPage from './routes/JsonEditorPage';
 import AppLayout from './components/Layout/AppLayout';
+import SegatoolsDeployPage from './routes/SegatoolsDeployPage';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Routes>
           <Route path="/games" element={<GameListPage />} />
           <Route path="/config" element={<ConfigEditorPage />} />
+          <Route path="/deploy" element={<SegatoolsDeployPage />} />
           <Route path="/json" element={<JsonEditorPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/games" replace />} />

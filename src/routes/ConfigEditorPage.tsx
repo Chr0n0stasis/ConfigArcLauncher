@@ -8,10 +8,11 @@ import { SegatoolsConfig } from '../types/config';
 import { useToast, ToastContainer } from '../components/common/Toast';
 import { PromptDialog } from '../components/common/PromptDialog';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
+import { Link } from 'react-router-dom';
 
 function ConfigEditorPage() {
   const { t } = useTranslation();
-  const { config, setConfig, loading, saving, error, activeGameId, reload, save, resetToDefaults } = useConfigState();
+  const { config, setConfig, loading, saving, error, activeGameId, reload, save, resetToDefaults, trustStatus, trustLoading, refreshTrust } = useConfigState();
   const { profiles, reload: reloadProfiles, saveProfile, deleteProfile, loadProfile } = useProfilesState();
   const { games } = useGamesState();
   const [selectedProfileId, setSelectedProfileId] = useState<string>('');
@@ -168,11 +169,28 @@ function ConfigEditorPage() {
           <button onClick={handleProfileDelete} disabled={!selectedProfileId}>{t('config.deleteProfile')}</button>
         </div>
       </div>
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+        <span style={{ fontWeight: 600, color: trustStatus?.trusted ? 'var(--success)' : 'var(--warning)' }}>
+          {trustLoading ? t('config.trustChecking') : trustStatus?.trusted ? t('config.trustOk') : trustStatus?.missing_files ? t('config.trustMissing') : t('config.trustFailed')}
+        </span>
+        <button onClick={refreshTrust} disabled={trustLoading}>{trustLoading ? t('config.trustChecking') : t('config.trustRefresh')}</button>
+        <Link to="/deploy" style={{ textDecoration: 'none' }}>
+          <button type="button">{t('config.openDeploy')}</button>
+        </Link>
+      </div>
+      {!trustStatus?.trusted && (
+        <div style={{ background: 'rgba(248,113,113,0.1)', border: '1px solid var(--danger)', padding: 10, borderRadius: 8, marginBottom: 12 }}>
+          <strong>{trustStatus?.missing_files ? t('config.trustMissingTitle') : t('config.trustWarningTitle')}</strong>
+          <div>{trustStatus?.missing_files ? t('config.trustMissingMessage') : t('config.trustWarningMessage')}</div>
+          {trustStatus?.reason && <div style={{ color: 'var(--text-muted)', marginTop: 4 }}>{t('config.trustReason', { reason: trustStatus.reason })}</div>}
+        </div>
+      )}
       {error && <p style={{ color: '#f87171' }}>{error}</p>}
       <SegatoolsEditor
         config={config}
         onChange={(next: SegatoolsConfig) => setConfig(next)}
         activeGame={activeGame}
+        trusted={!!trustStatus?.trusted}
       />
       <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
         <button onClick={() => { save(config); showToast(t('config.saved'), 'success'); }} disabled={saving}>{t('config.saveConfig')}</button>

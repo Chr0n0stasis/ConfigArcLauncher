@@ -10,6 +10,10 @@ use crate::config::{
     {default_segatoools_config, load_segatoools_config, load_segatoools_config_from_string, save_segatoools_config as persist_segatoools_config},
 };
 use crate::games::{launcher::launch_game, model::Game, store};
+use crate::trusted::{
+    deploy_segatoools_for_active, rollback_segatoools_for_active, verify_segatoools_for_active,
+    DeployResult, RollbackResult, SegatoolsTrustStatus,
+};
 use tauri::command;
 use serde_json::Value;
 use std::path::Path;
@@ -98,6 +102,9 @@ pub fn get_segatoools_config() -> Result<SegatoolsConfig, String> {
 #[command]
 pub fn save_segatoools_config(config: SegatoolsConfig) -> Result<(), String> {
     let path = segatoools_path_for_active().map_err(|e| e.to_string())?;
+    if !path.exists() {
+        return Err("segatools.ini not found. Please deploy segatools first.".to_string());
+    }
     persist_segatoools_config(&path, &config).map_err(|e| e.to_string())
 }
 
@@ -253,4 +260,19 @@ pub fn load_json_config_cmd(name: String) -> Result<Value, String> {
 #[command]
 pub fn save_json_config_cmd(name: String, content: Value) -> Result<(), String> {
     save_json_config_for_active(&name, &content).map_err(|e| e.to_string())
+}
+
+#[command]
+pub fn segatools_trust_status_cmd() -> Result<SegatoolsTrustStatus, String> {
+    verify_segatoools_for_active().map_err(|e| e.to_string())
+}
+
+#[command]
+pub fn deploy_segatoools_cmd(force: bool) -> Result<DeployResult, String> {
+    deploy_segatoools_for_active(force).map_err(|e| e.to_string())
+}
+
+#[command]
+pub fn rollback_segatoools_cmd() -> Result<RollbackResult, String> {
+    rollback_segatoools_for_active().map_err(|e| e.to_string())
 }

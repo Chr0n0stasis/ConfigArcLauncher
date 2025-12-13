@@ -14,6 +14,12 @@ function Sidebar() {
         {t('nav.games')}
       </NavLink>
       <NavLink 
+        to="/deploy" 
+        className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
+      >
+        {t('nav.deploy')}
+      </NavLink>
+      <NavLink 
         to="/config" 
         className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
       >
