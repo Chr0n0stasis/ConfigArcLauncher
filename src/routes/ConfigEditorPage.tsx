@@ -28,24 +28,6 @@ function ConfigEditorPage() {
     reloadProfiles();
   }, [reloadProfiles]);
 
-  useEffect(() => {
-    if (profiles.length > 0 && activeGameId && !initialized) {
-      setInitialized(true);
-      const last = localStorage.getItem(`lastProfile:${activeGameId}`);
-      if (last && profiles.some(p => p.id === last)) {
-        setSelectedProfileId(last);
-      } else {
-        // Try to find "Original INI" first, otherwise default to first
-        const original = profiles.find(p => p.name === "Original INI");
-        if (original) {
-          setSelectedProfileId(original.id);
-        } else {
-          setSelectedProfileId(profiles[0].id);
-        }
-      }
-    }
-  }, [profiles, activeGameId, initialized]);
-
   // Removed redundant useEffect that was causing double-load issues
 
   const profileOptions = useMemo(() => profiles.map((p) => ({ value: p.id, label: p.name })), [profiles]);
@@ -125,6 +107,26 @@ function ConfigEditorPage() {
     setConfig({ ...prof.segatools });
     showToast(t('config.loadedProfile', { name: prof.name }), 'info');
   };
+
+  useEffect(() => {
+    if (profiles.length > 0 && activeGameId && !initialized) {
+      setInitialized(true);
+      const last = localStorage.getItem(`lastProfile:${activeGameId}`);
+      let targetId: string | null = null;
+      if (last && profiles.some(p => p.id === last)) {
+        targetId = last;
+      } else {
+        const original = profiles.find(p => p.name === "Original INI");
+        targetId = original ? original.id : profiles[0].id;
+      }
+
+      if (targetId) {
+        handleProfileLoad(targetId);
+      } else {
+        setSelectedProfileId('');
+      }
+    }
+  }, [profiles, activeGameId, initialized]);
 
   if (loading) return (
     <div className="empty-state">
