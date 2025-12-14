@@ -2,6 +2,7 @@ use crate::error::ConfigError;
 use configparser::ini::Ini;
 use std::fs;
 use std::path::Path;
+use std::collections::HashSet;
 
 pub mod paths;
 pub mod profiles;
@@ -623,10 +624,23 @@ pub fn load_segatoools_config_from_string(content: &str) -> Result<SegatoolsConf
 
   let mut cfg = SegatoolsConfig::default();
 
-  // Populate present_sections
+  // Populate present_sections (include empty/comment-only sections)
+  let mut present_sections: HashSet<String> = HashSet::new();
   if let Some(map) = parser.get_map() {
-    cfg.present_sections = map.keys().map(|k| k.to_lowercase()).collect();
+    for k in map.keys() {
+      present_sections.insert(k.to_lowercase());
+    }
   }
+  for line in content.lines() {
+    let trimmed = line.trim();
+    if trimmed.starts_with('[') && trimmed.ends_with(']') {
+      let name = trimmed[1..trimmed.len() - 1].trim().to_lowercase();
+      if !name.is_empty() {
+        present_sections.insert(name);
+      }
+    }
+  }
+  cfg.present_sections = present_sections.into_iter().collect();
 
   // Scan for commented keys
   let mut current_section = String::new();

@@ -24,10 +24,7 @@ type Props = {
   trusted?: boolean;
 };
 
-function getSections(gameName?: string): SectionSpec[] {
-  const isChunithm = gameName === 'Chunithm';
-  
-  return [
+const ALL_SECTIONS: SectionSpec[] = [
   { 
     key: 'aimeio', 
     fields: [
@@ -253,16 +250,14 @@ function getSections(gameName?: string): SectionSpec[] {
       { name: 'enable', type: 'checkbox' },
       { name: 'freeplay', type: 'checkbox' },
       { name: 'dipsw1', type: 'checkbox' },
-      ...(isChunithm ? [
-        { 
-          name: 'dipsw2', 
-          type: 'checkbox' as const
-        },
-        { 
-          name: 'dipsw3', 
-          type: 'checkbox' as const
-        }
-      ] : [])
+      { 
+        name: 'dipsw2', 
+        type: 'checkbox' as const
+      },
+      { 
+        name: 'dipsw3', 
+        type: 'checkbox' as const
+      }
     ]
   },
   {
@@ -337,12 +332,58 @@ function getSections(gameName?: string): SectionSpec[] {
     }))
   }
 ];
+
+function allowedSections(gameName?: string): Set<string> {
+  const common = [
+    'aimeio', 'aime', 'vfd', 'amvideo', 'clock', 'dns', 'ds', 'eeprom', 'gpio', 'hwmon',
+    'jvs', 'keychip', 'netenv', 'pcbid', 'sram', 'vfs', 'epay', 'openssl', 'system',
+  ];
+
+  switch (gameName) {
+    case 'Chunithm':
+      return new Set([
+        ...common,
+        'gfx', 'led15093', 'led', 'chuniio', 'io3', 'ir', 'slider',
+      ]);
+    case 'Sinmai':
+      return new Set([
+        ...common,
+        'led15070', 'unity', 'mai2io', 'io4', 'button', 'touch', 'gfx',
+      ]);
+    case 'Ongeki':
+      return new Set([
+        ...common,
+        'gfx', 'unity', 'led15093', 'led', 'mu3io', 'io4',
+      ]);
+    default:
+      return new Set(ALL_SECTIONS.map(s => s.key as string));
+  }
+}
+
+function getSections(gameName?: string): SectionSpec[] {
+  const allowed = allowedSections(gameName);
+  const isChunithm = gameName === 'Chunithm';
+
+  return ALL_SECTIONS
+    .filter(section => allowed.has(section.key as string))
+    .map(section => {
+      if (section.key === 'system' && !isChunithm) {
+        return {
+          ...section,
+          fields: section.fields.filter(f => !['dipsw2', 'dipsw3'].includes(f.name)),
+        };
+      }
+      return section;
+    });
 }
 
 function SegatoolsEditor({ config, onChange, activeGame, trusted = false }: Props) {
   const { t } = useTranslation();
+  const allowed = allowedSections(activeGame?.name);
   const sections = getSections(activeGame?.name);
-  const presentSections = (config.presentSections ?? []).map((s) => s.toLowerCase());
+  const presentSections = (config.presentSections ?? [])
+    .map((s) => s.toLowerCase())
+    .filter((s) => allowed.has(s));
   const hasPresentSections = presentSections.length > 0;
 
   const updateValue = (section: keyof SegatoolsConfig, field: string, value: any) => {
@@ -362,13 +403,10 @@ function SegatoolsEditor({ config, onChange, activeGame, trusted = false }: Prop
     });
   };
 
-  const visibleSections = sections.filter(section => {
-    if (!hasPresentSections) {
-      return true;
-    }
-    const key = (section.key as string).toLowerCase();
-    return presentSections.includes(key);
-  });
+  const effectiveSections = hasPresentSections ? presentSections : Array.from(allowed);
+  const visibleSections = sections.filter(section =>
+    effectiveSections.includes((section.key as string).toLowerCase())
+  );
 
   return (
     <div style={{ display: 'grid', gap: 10 }}>
