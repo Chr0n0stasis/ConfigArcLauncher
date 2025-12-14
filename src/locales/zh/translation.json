@@ -19,9 +19,11 @@
   },
   "nav": {
     "games": "游戏",
-    "config": "INI 编辑器",
+    "editor": "编辑器",
+    "editorIni": "INI 编辑器",
+    "editorJson": "JSON 编辑器",
     "deploy": "部署",
-    "json": "JSON 编辑器",
+    "deploySegatools": "segatools 部署",
     "settings": "设置"
   },
   "games": {

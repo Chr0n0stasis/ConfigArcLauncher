@@ -13,30 +13,39 @@ function Sidebar() {
       >
         {t('nav.games')}
       </NavLink>
-      <NavLink 
-        to="/deploy" 
-        className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-      >
-        {t('nav.deploy')}
-      </NavLink>
-      <NavLink 
-        to="/config" 
-        className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-      >
-        {t('nav.config')}
-      </NavLink>
-      <NavLink 
-        to="/json" 
-        className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-      >
-        {t('nav.json')}
-      </NavLink>
-      <NavLink 
-        to="/settings" 
-        className={({ isActive }) => `sidebar-link ${isActive ? 'active' : ''}`}
-      >
-        {t('nav.settings')}
-      </NavLink>
+      <div className="layout-sidebar-title">{t('nav.editor')}</div>
+      <div className="sidebar-group">
+        <NavLink 
+          to="/config" 
+          className={({ isActive }) => `sidebar-link sidebar-sublink ${isActive ? 'active' : ''}`}
+        >
+          {t('nav.editorIni')}
+        </NavLink>
+        <NavLink 
+          to="/json" 
+          className={({ isActive }) => `sidebar-link sidebar-sublink ${isActive ? 'active' : ''}`}
+        >
+          {t('nav.editorJson')}
+        </NavLink>
+      </div>
+      <div className="layout-sidebar-title">{t('nav.deploy')}</div>
+      <div className="sidebar-group">
+        <NavLink 
+          to="/deploy" 
+          className={({ isActive }) => `sidebar-link sidebar-sublink ${isActive ? 'active' : ''}`}
+        >
+          {t('nav.deploySegatools')}
+        </NavLink>
+      </div>
+      <div className="layout-sidebar-title">{t('nav.settings')}</div>
+      <div className="sidebar-group">
+        <NavLink 
+          to="/settings" 
+          className={({ isActive }) => `sidebar-link sidebar-sublink ${isActive ? 'active' : ''}`}
+        >
+          {t('nav.settings')}
+        </NavLink>
+      </div>
     </aside>
   );
 }

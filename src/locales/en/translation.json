@@ -17,13 +17,15 @@
     "name": "Name",
     "error": "Error"
   },
-    "nav": {
-      "games": "Games",
-      "config": "INI Editor",
-      "deploy": "Deploy",
-      "json": "JSON Editor",
-      "settings": "Settings"
-    },
+  "nav": {
+    "games": "Games",
+    "editor": "Editor",
+    "editorIni": "INI Editor",
+    "editorJson": "JSON Editor",
+    "deploy": "Deploy",
+    "deploySegatools": "Segatools",
+    "settings": "Settings"
+  },
   "games": {
     "title": "Games",
     "subtitle": "Manage local executables and launch with selected profile.",

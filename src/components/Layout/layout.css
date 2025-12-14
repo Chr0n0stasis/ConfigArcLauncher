@@ -53,7 +53,7 @@
 }
 
 .layout-sidebar-title {
-  font-size: 12px;
+  font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 1px;
   color: var(--text-muted);
@@ -90,3 +90,13 @@
   box-shadow: var(--shadow-glow);
 }
 
+.sidebar-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: var(--spacing-sm);
+}
+
+.sidebar-sublink {
+  padding-left: 20px;
+  font-size: 0.95rem;
+}
