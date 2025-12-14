@@ -1,6 +1,7 @@
 use crate::config::paths::{active_game_dir, get_active_game_id};
 use crate::games::{model::Game, store};
 use chrono::Utc;
+use std::collections::HashMap;
 use minisign_verify::{PublicKey, Signature};
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
@@ -9,6 +10,8 @@ use sha2::{Digest, Sha256};
 use std::fs;
 use std::io::{Read, Seek, SeekFrom};
 use std::path::{Path, PathBuf};
+use std::sync::{Mutex, OnceLock};
+use std::time::{Duration, SystemTime};
 use tempfile::NamedTempFile;
 use thiserror::Error;
 use zip::read::ZipArchive;
@@ -20,6 +23,7 @@ const PUBLIC_KEY: &str = "untrusted comment: minisign public key 56F1F4A46FE3CC0
 const BACKUP_DIR: &str = "Segatools_Backup";
 const BACKUP_FILES_DIR: &str = "files";
 const BACKUP_META_NAME: &str = "metadata.json";
+const TRUST_CACHE_TTL_SECS: u64 = 300;
 
 #[derive(Debug, Error)]
 pub enum TrustedError {
@@ -174,6 +178,96 @@ struct ActiveGameContext {
 
 struct DownloadedArtifact {
     path: NamedTempFile,
+}
+
+#[derive(Clone)]
+struct CachedTrustEntry {
+    status: SegatoolsTrustStatus,
+    mtimes: HashMap<String, SystemTime>,
+    cached_at: SystemTime,
+}
+
+static TRUST_CACHE: OnceLock<Mutex<HashMap<String, CachedTrustEntry>>> = OnceLock::new();
+
+fn trust_cache() -> &'static Mutex<HashMap<String, CachedTrustEntry>> {
+    TRUST_CACHE.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn cache_key(root: &Path) -> String {
+    root.to_string_lossy().to_string()
+}
+
+fn capture_mtimes(root: &Path, files: &[FileCheckResult]) -> HashMap<String, SystemTime> {
+    let mut mtimes = HashMap::new();
+    for file in files {
+        let path = root.join(&file.path);
+        if let Ok(meta) = fs::metadata(&path) {
+            if let Ok(modified) = meta.modified() {
+                mtimes.insert(file.path.clone(), modified);
+            }
+        }
+    }
+    mtimes
+}
+
+fn files_unchanged(root: &Path, mtimes: &HashMap<String, SystemTime>) -> bool {
+    for (rel, cached_time) in mtimes {
+        let path = root.join(rel);
+        let meta = match fs::metadata(&path) {
+            Ok(m) => m,
+            Err(_) => return false,
+        };
+        let modified = match meta.modified() {
+            Ok(m) => m,
+            Err(_) => return false,
+        };
+        if &modified != cached_time {
+            return false;
+        }
+    }
+    true
+}
+
+fn cached_status_for(root: &Path) -> Option<SegatoolsTrustStatus> {
+    let key = cache_key(root);
+    let cache = trust_cache().lock().ok()?;
+    let entry = cache.get(&key)?;
+    if entry
+        .cached_at
+        .elapsed()
+        .unwrap_or(Duration::from_secs(TRUST_CACHE_TTL_SECS + 1))
+        > Duration::from_secs(TRUST_CACHE_TTL_SECS)
+    {
+        return None;
+    }
+    if !files_unchanged(root, &entry.mtimes) {
+        return None;
+    }
+    Some(entry.status.clone())
+}
+
+fn clear_cached_status(root: &Path) {
+    if let Ok(mut cache) = trust_cache().lock() {
+        cache.remove(&cache_key(root));
+    }
+}
+
+fn store_status_for(root: &Path, status: &SegatoolsTrustStatus) {
+    // Only cache successful trusted verifications to avoid hiding missing/untrusted states.
+    if !status.trusted || status.missing_files {
+        clear_cached_status(root);
+        return;
+    }
+
+    let entry = CachedTrustEntry {
+        status: status.clone(),
+        mtimes: capture_mtimes(root, &status.checked_files),
+        cached_at: SystemTime::now(),
+    };
+
+    if let Ok(mut cache) = trust_cache().lock() {
+        cache.insert(cache_key(root), entry);
+    }
 }
 
 fn client() -> Result<Client, TrustedError> {
@@ -436,6 +530,11 @@ fn check_files(
 
 pub fn verify_segatoools_for_active() -> Result<SegatoolsTrustStatus, TrustedError> {
     let ctx = active_game_ctx()?;
+
+    if let Some(cached) = cached_status_for(&ctx.root) {
+        return Ok(cached);
+    }
+
     let manifest = fetch_manifest()?;
     let artifact = select_artifact(&manifest, &ctx.game)?;
     let downloaded = if artifact.files.is_empty() {
@@ -444,7 +543,9 @@ pub fn verify_segatoools_for_active() -> Result<SegatoolsTrustStatus, TrustedErr
         None
     };
     let expected = expected_files(artifact, downloaded.as_ref())?;
-    Ok(check_files(&ctx.root, &expected, artifact, &manifest))
+    let status = check_files(&ctx.root, &expected, artifact, &manifest);
+    store_status_for(&ctx.root, &status);
+    Ok(status)
 }
 
 fn collect_zip_entries(path: &Path) -> Result<Vec<String>, TrustedError> {
@@ -559,6 +660,7 @@ pub fn deploy_segatoools_for_active(force: bool) -> Result<DeployResult, Trusted
     extract_artifact(&ctx.root, downloaded.path.path())?;
     let expected = expected_files(artifact, Some(&downloaded))?;
     let verification = check_files(&ctx.root, &expected, artifact, &manifest);
+    store_status_for(&ctx.root, &verification);
 
     Ok(DeployResult {
         deployed: true,
@@ -585,6 +687,7 @@ pub fn rollback_segatoools_for_active() -> Result<RollbackResult, TrustedError> 
     }
     let meta: BackupMetadata = serde_json::from_slice(&fs::read(&meta_path)?)?;
 
+    clear_cached_status(&ctx.root);
     for file in &meta.backed_up_files {
         let backup_path = backup_root.join(BACKUP_FILES_DIR).join(file);
         let target = ctx.root.join(file);
