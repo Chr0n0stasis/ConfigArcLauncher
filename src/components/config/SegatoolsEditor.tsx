@@ -342,7 +342,8 @@ function getSections(gameName?: string): SectionSpec[] {
 function SegatoolsEditor({ config, onChange, activeGame, trusted = false }: Props) {
   const { t } = useTranslation();
   const sections = getSections(activeGame?.name);
-  const hasPresentSections = !!config.presentSections && config.presentSections.length > 0;
+  const presentSections = (config.presentSections ?? []).map((s) => s.toLowerCase());
+  const hasPresentSections = presentSections.length > 0;
 
   const updateValue = (section: keyof SegatoolsConfig, field: string, value: any) => {
     // Ensure the section is marked as present when modified
@@ -362,11 +363,11 @@ function SegatoolsEditor({ config, onChange, activeGame, trusted = false }: Prop
   };
 
   const visibleSections = sections.filter(section => {
-    if (trusted) return true;
-    if (hasPresentSections) {
-      return config.presentSections?.includes(section.key as string);
+    if (!hasPresentSections) {
+      return true;
     }
-    return true;
+    const key = (section.key as string).toLowerCase();
+    return presentSections.includes(key);
   });
 
   return (
