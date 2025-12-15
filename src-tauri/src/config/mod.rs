@@ -626,9 +626,15 @@ pub fn load_segatoools_config_from_string(content: &str) -> Result<SegatoolsConf
 
   // Populate present_sections (include empty/comment-only sections)
   let mut present_sections: HashSet<String> = HashSet::new();
+  let mut present_keys: Vec<String> = Vec::new();
   if let Some(map) = parser.get_map() {
     for k in map.keys() {
       present_sections.insert(k.to_lowercase());
+      if let Some(sec) = map.get(k) {
+        for key in sec.keys() {
+          present_keys.push(format!("{}.{}", k.to_lowercase(), key.to_lowercase()));
+        }
+      }
     }
   }
   for line in content.lines() {
@@ -641,6 +647,7 @@ pub fn load_segatoools_config_from_string(content: &str) -> Result<SegatoolsConf
     }
   }
   cfg.present_sections = present_sections.into_iter().collect();
+  cfg.present_keys = present_keys;
 
   // Scan for commented keys
   let mut current_section = String::new();

@@ -37,6 +37,7 @@ export interface SegatoolsConfig {
   ir: IrConfig;
   presentSections?: string[];
   commentedKeys?: string[];
+  presentKeys?: string[];
 }
 
 export interface SliderConfig {

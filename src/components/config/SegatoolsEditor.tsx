@@ -385,6 +385,8 @@ function SegatoolsEditor({ config, onChange, activeGame, trusted = false }: Prop
     .map((s) => s.toLowerCase())
     .filter((s) => allowed.has(s));
   const hasPresentSections = presentSections.length > 0;
+  const presentKeys = (config.presentKeys ?? []).map((k) => k.toLowerCase());
+  const commentedKeys = (config.commentedKeys ?? []).map((k) => k.toLowerCase());
 
   const updateValue = (section: keyof SegatoolsConfig, field: string, value: any) => {
     // Ensure the section is marked as present when modified
@@ -416,6 +418,14 @@ function SegatoolsEditor({ config, onChange, activeGame, trusted = false }: Prop
             {section.fields.map((field) => {
               const fullKey = `${section.key}.${field.name}`;
               const isCommented = config.commentedKeys?.includes(fullKey);
+              const lowerFullKey = fullKey.toLowerCase();
+              const shouldShowField =
+                !hasPresentSections ||
+                presentKeys.includes(lowerFullKey) ||
+                commentedKeys.includes(lowerFullKey);
+              if (!shouldShowField) {
+                return null;
+              }
               
               return (
                 <OptionField

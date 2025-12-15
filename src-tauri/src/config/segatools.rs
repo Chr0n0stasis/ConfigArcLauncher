@@ -40,6 +40,8 @@ pub struct SegatoolsConfig {
   pub present_sections: Vec<String>,
   #[serde(default)]
   pub commented_keys: Vec<String>,
+  #[serde(default)]
+  pub present_keys: Vec<String>,
 }
 
 impl Default for SegatoolsConfig {
@@ -80,6 +82,7 @@ impl Default for SegatoolsConfig {
       io3: Io3Config::default(),
       slider: SliderConfig::default(),
       ir: IrConfig::default(),
+      present_keys: vec![],
     }
   }
 }
