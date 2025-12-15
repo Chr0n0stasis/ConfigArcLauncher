@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
+import type { ChangeEvent } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SegatoolsEditor from '../components/config/SegatoolsEditor';
 import { useConfigState, useProfilesState } from '../state/configStore';
@@ -9,6 +10,7 @@ import { useToast, ToastContainer } from '../components/common/Toast';
 import { PromptDialog } from '../components/common/PromptDialog';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
 import { Link } from 'react-router-dom';
+import { exportProfile, importProfile } from '../api/configApi';
 
 function ConfigEditorPage() {
   const { t } = useTranslation();
@@ -17,6 +19,7 @@ function ConfigEditorPage() {
   const { games } = useGamesState();
   const [selectedProfileId, setSelectedProfileId] = useState<string>('');
   const { toasts, showToast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [showNewProfileDialog, setShowNewProfileDialog] = useState(false);
   const [showDeleteProfileDialog, setShowDeleteProfileDialog] = useState(false);
@@ -106,6 +109,43 @@ function ConfigEditorPage() {
     const prof = await loadProfile(id);
     setConfig({ ...prof.segatools });
     showToast(t('config.loadedProfile', { name: prof.name }), 'info');
+  };
+
+  const handleExportIni = async () => {
+    try {
+      const content = await exportProfile(selectedProfileId || undefined);
+      const blob = new Blob([content], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'segatools_profile.json';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast(t('config.exportedIni', { defaultValue: 'Profile exported' }), 'success');
+    } catch (err) {
+      showToast(t('config.exportFailed', { reason: String(err), defaultValue: `Export failed: ${String(err)}` }), 'danger');
+    }
+  };
+
+  const handleImportIni = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImportFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const profile = await importProfile(text);
+      await reloadProfiles();
+      setSelectedProfileId(profile.id);
+      setConfig(profile.segatools);
+      showToast(t('config.importedIni', { name: profile.name, defaultValue: 'Profile imported' }), 'success');
+    } catch (err) {
+      showToast(t('config.importFailed', { reason: String(err), defaultValue: `Import failed: ${String(err)}` }), 'danger');
+    } finally {
+      e.target.value = '';
+    }
   };
 
   useEffect(() => {
@@ -198,7 +238,16 @@ function ConfigEditorPage() {
         <button onClick={() => { save(config); showToast(t('config.saved'), 'success'); }} disabled={saving}>{t('config.saveConfig')}</button>
         <button onClick={resetToDefaults}>{t('config.resetDefaults')}</button>
         <button onClick={() => { reload(); showToast(t('config.reloaded'), 'info'); }}>{t('config.reloadDisk')}</button>
+        <button onClick={handleExportIni}>{t('config.exportIni', { defaultValue: 'Export Profile' })}</button>
+        <button onClick={handleImportIni}>{t('config.importIni', { defaultValue: 'Import Profile' })}</button>
       </div>
+      <input
+        type="file"
+        accept=".json,application/json,text/plain"
+        style={{ display: 'none' }}
+        ref={fileInputRef}
+        onChange={handleImportFileChange}
+      />
       {showNewProfileDialog && (
         <PromptDialog
           title={t('config.createProfileTitle')}

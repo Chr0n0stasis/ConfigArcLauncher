@@ -384,7 +384,7 @@ function SegatoolsEditor({ config, onChange, activeGame, trusted = false }: Prop
   const presentSections = (config.presentSections ?? [])
     .map((s) => s.toLowerCase())
     .filter((s) => allowed.has(s));
-  const hasPresentSections = presentSections.length > 0;
+  const shouldFilterSections = presentSections.length > 0 && !trusted;
   const presentKeys = (config.presentKeys ?? []).map((k) => k.toLowerCase());
   const commentedKeys = (config.commentedKeys ?? []).map((k) => k.toLowerCase());
 
@@ -405,7 +405,7 @@ function SegatoolsEditor({ config, onChange, activeGame, trusted = false }: Prop
     });
   };
 
-  const effectiveSections = hasPresentSections ? presentSections : Array.from(allowed);
+  const effectiveSections = shouldFilterSections ? presentSections : Array.from(allowed);
   const visibleSections = sections.filter(section =>
     effectiveSections.includes((section.key as string).toLowerCase())
   );
@@ -420,7 +420,7 @@ function SegatoolsEditor({ config, onChange, activeGame, trusted = false }: Prop
               const isCommented = config.commentedKeys?.includes(fullKey);
               const lowerFullKey = fullKey.toLowerCase();
               const shouldShowField =
-                !hasPresentSections ||
+                !shouldFilterSections ||
                 presentKeys.includes(lowerFullKey) ||
                 commentedKeys.includes(lowerFullKey);
               if (!shouldShowField) {

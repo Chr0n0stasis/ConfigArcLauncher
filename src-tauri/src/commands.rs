@@ -7,7 +7,7 @@ use crate::config::{
     segatools::SegatoolsConfig,
     templates,
     json_configs::{JsonConfigFile, list_json_configs_for_active, load_json_config_for_active, save_json_config_for_active},
-    {default_segatoools_config, load_segatoools_config, load_segatoools_config_from_string, save_segatoools_config as persist_segatoools_config},
+    {default_segatoools_config, load_segatoools_config, load_segatoools_config_from_string, save_segatoools_config as persist_segatoools_config, render_segatoools_config},
 };
 use crate::games::{launcher::launch_game, model::Game, store};
 use crate::icf::{decode_icf, encrypt_icf, serialize_icf, IcfData};
@@ -15,13 +15,79 @@ use crate::trusted::{
     deploy_segatoools_for_active, rollback_segatoools_for_active, verify_segatoools_for_active,
     DeployResult, RollbackResult, SegatoolsTrustStatus,
 };
-use serde::Serialize;
+use serde::{Serialize, Deserialize};
+use std::collections::HashSet;
 use tauri::command;
 use serde_json::Value;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::time::{SystemTime, UNIX_EPOCH};
+
+fn redact_keychip_id(content: &str) -> String {
+    let mut result = String::with_capacity(content.len());
+    let mut in_keychip = false;
+
+    for line in content.lines() {
+        let trimmed = line.trim();
+        if trimmed.starts_with('[') && trimmed.ends_with(']') {
+            in_keychip = trimmed[1..trimmed.len() - 1].eq_ignore_ascii_case("keychip");
+            result.push_str(line);
+            result.push('\n');
+            continue;
+        }
+
+        if in_keychip {
+            let mut body = trimmed;
+            if body.starts_with(';') || body.starts_with('#') {
+                body = body[1..].trim_start();
+            }
+            if let Some(idx) = body.find('=') {
+                let key = body[..idx].trim();
+                if key.eq_ignore_ascii_case("id") {
+                    result.push_str("id=\n");
+                    continue;
+                }
+            }
+        }
+
+        result.push_str(line);
+        result.push('\n');
+    }
+
+    result
+}
+
+#[derive(Deserialize)]
+struct ImportProfilePayload {
+    name: Option<String>,
+    description: Option<String>,
+    segatools: SegatoolsConfig,
+}
+
+fn gen_profile_id(prefix: &str) -> String {
+    let ts = SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_millis();
+    format!("{}-{}", prefix, ts)
+}
+
+fn allowed_sections_for_game(name: &str) -> HashSet<&'static str> {
+    let common: &[&str] = &[
+        "aimeio", "aime", "vfd", "amvideo", "clock", "dns", "ds", "eeprom", "gpio", "hwmon",
+        "jvs", "keychip", "netenv", "pcbid", "sram", "vfs", "epay", "openssl", "system",
+    ];
+    match name {
+        "Chunithm" => common.iter().copied()
+            .chain(["gfx", "led15093", "led", "chuniio", "io3", "ir", "slider"].iter().copied())
+            .collect(),
+        "Sinmai" => common.iter().copied()
+            .chain(["led15070", "unity", "mai2io", "io4", "button", "touch", "gfx"].iter().copied())
+            .collect(),
+        "Ongeki" => common.iter().copied()
+            .chain(["gfx", "unity", "led15093", "led", "mu3io", "io4"].iter().copied())
+            .collect(),
+        _ => common.iter().copied().collect(),
+    }
+}
 
 fn scan_game_folder_logic(path: &str) -> Result<Game, String> {
     let dir = Path::new(path);
@@ -198,6 +264,99 @@ pub fn save_segatoools_config(config: SegatoolsConfig) -> Result<(), String> {
         return Err("segatools.ini not found. Please deploy first.".to_string());
     }
     persist_segatoools_config(&path, &config).map_err(|e| e.to_string())
+}
+
+#[command]
+pub fn export_segatoools_config_cmd() -> Result<String, String> {
+    ensure_default_segatoools_exists().map_err(|e| e.to_string())?;
+    let path = segatoools_path_for_active().map_err(|e| e.to_string())?;
+    let content = fs::read_to_string(&path).map_err(|e| e.to_string())?;
+    let mut cfg = load_segatoools_config_from_string(&content).map_err(|e| e.to_string())?;
+    cfg.keychip.id.clear();
+    let rendered = render_segatoools_config(&cfg, Some(&content)).map_err(|e| e.to_string())?;
+    Ok(redact_keychip_id(&rendered))
+}
+
+#[command]
+pub fn import_segatoools_config_cmd(content: String) -> Result<SegatoolsConfig, String> {
+    load_segatoools_config_from_string(&content).map_err(|e| e.to_string())
+}
+
+#[command]
+pub fn export_profile_cmd(profile_id: Option<String>) -> Result<String, String> {
+    ensure_default_segatoools_exists().map_err(|e| e.to_string())?;
+    let game = active_game()?;
+    let allowed = allowed_sections_for_game(&game.name);
+
+    let (name, description, mut cfg) = if let Some(id) = profile_id {
+        let profile = load_profile(&id).map_err(|e| e.to_string())?;
+        (profile.name, profile.description, profile.segatools)
+    } else {
+        let path = segatoools_path_for_active().map_err(|e| e.to_string())?;
+        let cfg = load_segatoools_config(&path).map_err(|e| e.to_string())?;
+        ("Shared Profile".to_string(), None, cfg)
+    };
+
+    cfg.keychip.id.clear();
+
+    let mut payload = serde_json::to_value(serde_json::json!({
+        "name": name,
+        "description": description,
+        "segatools": cfg,
+    })).map_err(|e| e.to_string())?;
+
+    if let Some(seg) = payload.get_mut("segatools").and_then(|v| v.as_object_mut()) {
+        let keys: Vec<String> = seg.keys().cloned().collect();
+        for k in keys {
+            if k == "presentSections" || k == "presentKeys" || k == "commentedKeys" {
+                continue;
+            }
+            if !allowed.contains(k.as_str()) {
+                seg.remove(&k);
+            }
+        }
+
+        // Filter present sections/keys to only allowed
+        if let Some(present) = seg.get_mut("presentSections").and_then(|v| v.as_array_mut()) {
+            present.retain(|s| s.as_str().map(|v| allowed.contains(v)).unwrap_or(true));
+        }
+        if let Some(present) = seg.get_mut("presentKeys").and_then(|v| v.as_array_mut()) {
+            present.retain(|s| {
+                s.as_str().map(|v| {
+                    let sec = v.split('.').next().unwrap_or("");
+                    allowed.contains(sec)
+                }).unwrap_or(true)
+            });
+        }
+        if let Some(comments) = seg.get_mut("commentedKeys").and_then(|v| v.as_array_mut()) {
+            comments.retain(|s| {
+                s.as_str().map(|v| {
+                    let sec = v.split('.').next().unwrap_or("");
+                    allowed.contains(sec)
+                }).unwrap_or(true)
+            });
+        }
+    }
+
+    serde_json::to_string_pretty(&payload).map_err(|e| e.to_string())
+}
+
+#[command]
+pub fn import_profile_cmd(content: String) -> Result<ConfigProfile, String> {
+    let mut payload: ImportProfilePayload = serde_json::from_str(&content).map_err(|e| e.to_string())?;
+    payload.segatools.keychip.id.clear();
+
+    let now = chrono::Utc::now().to_rfc3339();
+    let profile = ConfigProfile {
+        id: gen_profile_id("import"),
+        name: payload.name.unwrap_or_else(|| "Imported Profile".to_string()),
+        description: payload.description,
+        segatools: payload.segatools,
+        created_at: now.clone(),
+        updated_at: now,
+    };
+    save_profile(&profile).map_err(|e| e.to_string())?;
+    Ok(profile)
 }
 
 #[command]

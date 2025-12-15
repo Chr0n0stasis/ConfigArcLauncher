@@ -13,6 +13,10 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             get_segatoools_config,
             save_segatoools_config,
+            export_segatoools_config_cmd,
+            import_segatoools_config_cmd,
+            export_profile_cmd,
+            import_profile_cmd,
             list_profiles_cmd,
             load_profile_cmd,
             save_profile_cmd,

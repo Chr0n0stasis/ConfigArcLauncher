@@ -618,6 +618,13 @@ pub fn save_segatoools_config(path: &Path, cfg: &SegatoolsConfig) -> Result<(), 
   Ok(())
 }
 
+pub fn render_segatoools_config(cfg: &SegatoolsConfig, existing_content: Option<&str>) -> Result<String, ConfigError> {
+  let base = existing_content.unwrap_or("");
+  let mut updater = IniUpdater::new(base);
+  perform_save(&mut updater, cfg);
+  Ok(updater.to_string())
+}
+
 pub fn load_segatoools_config_from_string(content: &str) -> Result<SegatoolsConfig, ConfigError> {
   let mut parser = Ini::new();
   parser.read(content.to_string()).map_err(|e| ConfigError::Parse(e))?;
