@@ -71,7 +71,7 @@ fn gen_profile_id(prefix: &str) -> String {
 }
 
 fn blacklist_sections_for_game(name: &str) -> HashSet<&'static str> {
-    let mut blacklist: HashSet<&'static str> = ["ds", "eeprom", "gpio", "jvs"].into_iter().collect();
+    let blacklist: HashSet<&'static str> = ["ds", "eeprom", "gpio", "jvs"].into_iter().collect();
 
     match name {
         // Extendable per-game blacklist
@@ -219,7 +219,7 @@ fn sanitize_segatoools_for_game(mut cfg: SegatoolsConfig, game_name: Option<&str
         present = allowed_lower.iter().cloned().collect();
     }
 
-    let mut filter_keys = |keys: &mut Vec<String>| {
+    let filter_keys = |keys: &mut Vec<String>| {
         keys.retain(|k| {
             k.split('.')
                 .next()
