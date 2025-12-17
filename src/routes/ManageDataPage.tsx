@@ -206,7 +206,9 @@ function ManageDataPage() {
             <h3 style={{ margin: 0 }}>{t('manage.data.option')}</h3>
             <small>{paths?.option?.resolved || t('manage.data.notConfigured')}</small>
           </div>
-          <button onClick={loadOptions}>{t('manage.data.refresh')}</button>
+          <button className="icon-btn" onClick={() => loadOptions()} title={t('manage.data.refresh')}>
+            <RefreshIcon />
+          </button>
         </div>
         <div style={{ display: 'grid', gap: 8, marginTop: 10 }}>
           {optionFiles.length === 0 && (

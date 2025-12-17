@@ -267,6 +267,6 @@
 }
 
 body.rainbow-mode {
- animation: rainbow-spin 1.0s linear infinite;
+ animation: rainbow-spin 0.5s linear infinite;
 }
 
