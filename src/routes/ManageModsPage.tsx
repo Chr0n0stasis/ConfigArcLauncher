@@ -5,6 +5,8 @@ import { ModsStatus } from '../types/manage';
 import { addMods, deleteMod, getModsStatus } from '../api/manageApi';
 import { useToast, ToastContainer } from '../components/common/Toast';
 
+const RefreshIcon = () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>;
+
 const formatSize = (size: number) => {
   if (size > 1024 * 1024) return `${(size / (1024 * 1024)).toFixed(1)} MB`;
   if (size > 1024) return `${(size / 1024).toFixed(1)} KB`;
@@ -110,7 +112,9 @@ function ManageModsPage() {
           <small>{t('manage.mods.subtitle')}</small>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={loadStatus}>{t('manage.mods.refresh')}</button>
+          <button className="icon-btn" onClick={loadStatus} title={t('manage.mods.refresh')}>
+            <RefreshIcon />
+          </button>
         </div>
       </div>
 

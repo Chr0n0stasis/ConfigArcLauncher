@@ -19,7 +19,7 @@ const buildRandomAime = () => {
 
 // Simple SVG Icons
 const Icons = {
-  Refresh: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
+  Refresh: () => <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
   Plus: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>,
   Trash: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>,
   Check: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>,
@@ -28,6 +28,7 @@ const Icons = {
   Save: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>,
   Pencil: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>,
   X: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>,
+  Tag: () => <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></svg>,
 };
 
 function ManageAimePage() {
@@ -210,25 +211,25 @@ function ManageAimePage() {
           <h2>{t('manage.aime.title')}{activeGame ? ` · ${activeGame.name}` : ''}</h2>
           <small>{t('manage.aime.subtitle')}</small>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
-          <button className="secondary icon-btn" onClick={loadEntries} title={t('manage.aime.refresh')}>
-            <Icons.Refresh />
-          </button>
-        </div>
+        <button className="icon-btn" onClick={loadEntries} title={t('manage.aime.refresh')}>
+          <Icons.Refresh />
+        </button>
       </div>
 
       {!activeGameId && (
-        <div className="empty-state-card">
+        <div className="empty-state-card" style={{ gridColumn: '1 / -1' }}>
           <h3>{t('manage.aime.noActiveGame')}</h3>
           <p className="hint-text">{t('manage.aime.noActiveGameHint')}</p>
         </div>
       )}
+
       {activeGameId && !hasActive && (
         <div className="aime-card">
           <h3><span className="icon-title"><Icons.Card /> {t('manage.aime.currentTitle')}</span></h3>
           <p className="hint-text">{t('manage.aime.currentMissing')}</p>
         </div>
       )}
+
       {activeGameId && hasActive && (
         <div className="aime-card active-card">
           <h3>
@@ -239,6 +240,7 @@ function ManageAimePage() {
             <div className="aime-number-display">{activeAimeNumber}</div>
             {activeMatch && (
               <div className="aime-active-name-right">
+                <Icons.Tag />
                 {activeMatch.name}
               </div>
             )}
@@ -252,7 +254,7 @@ function ManageAimePage() {
                   onChange={(e) => setActiveAimeName(e.target.value)}
                   placeholder={t('manage.aime.currentNamePlaceholder')}
                 />
-                <button type="button" onClick={handleSaveCurrent}>
+                <button type="button" className="btn-primary" onClick={handleSaveCurrent}>
                   <Icons.Save /> {t('manage.aime.saveCurrent')}
                 </button>
               </div>
@@ -277,14 +279,14 @@ function ManageAimePage() {
             />
           </div>
           <div className="aime-actions">
-            <button onClick={handleAdd}><Icons.Plus /> {t('manage.aime.addButton')}</button>
-            <button type="button" className="secondary" onClick={handleGenerate}><Icons.Magic /> {t('manage.aime.generate')}</button>
-            <small className="hint-text">{t('manage.aime.targetHint')}</small>
+            <button className="btn-primary" onClick={handleAdd}><Icons.Plus /> {t('manage.aime.addButton')}</button>
+            <button type="button" onClick={handleGenerate}><Icons.Magic /> {t('manage.aime.generate')}</button>
           </div>
+          <small className="hint-text">{t('manage.aime.targetHint')}</small>
         </div>
       </div>
 
-      <div className="aime-card">
+      <div className="aime-card" style={{ gridColumn: '1 / -1' }}>
         <h3>
           <span className="icon-title"><Icons.Card /> {t('manage.aime.listTitle')}</span>
           <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)', fontWeight: 'normal' }}>{entries.length}</span>
@@ -312,7 +314,7 @@ function ManageAimePage() {
                   <button className="icon-btn" onClick={handleSaveEdit} title={t('common.save')}>
                     <Icons.Save />
                   </button>
-                  <button className="secondary icon-btn" onClick={handleCancelEdit} title={t('common.cancel')}>
+                  <button className="icon-btn" onClick={handleCancelEdit} title={t('common.cancel')}>
                     <Icons.X />
                   </button>
                 </div>
@@ -322,19 +324,19 @@ function ManageAimePage() {
                     <div className="aime-item-name">
                       {entry.name}
                       {activeAimeNumber === entry.number && (
-                        <span className="status-badge">{t('common.active')}</span>
+                        <span className="status-badge" style={{ marginLeft: 8 }}>{t('common.active')}</span>
                       )}
                     </div>
                     <div className="aime-item-number">{entry.number}</div>
                   </div>
                   <div className="aime-item-actions">
-                    <button className="secondary icon-btn" onClick={() => handleApply(entry.id)} disabled={!activeGameId} title={t('manage.aime.apply')}>
+                    <button className="icon-btn" onClick={() => handleApply(entry.id)} disabled={!activeGameId} title={t('manage.aime.apply')}>
                       <Icons.Check />
                     </button>
-                    <button className="secondary icon-btn" onClick={() => handleEdit(entry)} title={t('common.edit')}>
+                    <button className="icon-btn" onClick={() => handleEdit(entry)} title={t('common.edit')}>
                       <Icons.Pencil />
                     </button>
-                    <button className="danger icon-btn" onClick={() => handleDelete(entry.id)} title={t('common.delete')}>
+                    <button className="icon-btn danger" onClick={() => handleDelete(entry.id)} title={t('common.delete')}>
                       <Icons.Trash />
                     </button>
                   </div>

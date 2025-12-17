@@ -131,6 +131,30 @@ button.danger:hover {
   box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
 }
 
+.icon-btn {
+  padding: 6px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.icon-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+  box-shadow: none;
+}
+
+.icon-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger);
+  box-shadow: none;
+}
+
 /* Inputs */
 input, select, textarea {
   background: var(--bg-primary);
